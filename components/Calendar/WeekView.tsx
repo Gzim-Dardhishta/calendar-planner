@@ -11,15 +11,24 @@ import Link from 'next/link'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
 import PublicLayout from '../layouts/PublicLayout'
-import { useRouter } from 'next/router'
+import { useParams, useRouter } from 'next/navigation'
 
 const WeekView: FC = (): ReactNode => {
-    const [week, setWeek] = useState<number>(moment().week())
+    
+    const params = useParams<{ year: string; week: string }>()
+
+    const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
+    const initialWeek = params.week ? parseInt(params.week as string, 10) : moment().week()
+
+    const [week, setWeek] = useState<number>(initialWeek)
     const [days, setDays] = useState<Day[]>([])
     const router = useRouter()
 
+    console.log(week)
+    
+
     useEffect(() => {
-        setDays(getDaysByWeekNumber(moment().year(), week))
+        setDays(getDaysByWeekNumber(initialYear, week))
     }, [week])
 
     const getDaysByWeekNumber = (year: number, weekNumber: number): Day[] => {
@@ -41,7 +50,7 @@ const WeekView: FC = (): ReactNode => {
             filteredPlans.length > 0 && (
                 <div className='w-[95%] mx-auto'>
                     {filteredPlans.map((plan, index) => (
-                        <div key={index} className={` w-[11rem] bg-[#F5AD9E] p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis ${bgColor}`}>
+                        <div key={index} className={` w-full bg-[#F5AD9E] p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis ${bgColor}`}>
                             {moment(plan.dateTime).format('MMM DD, YYYY')} - {moment(plan.dateTime).format('hh:mm A')} - {plan.text}
                         </div>
                     ))}
@@ -82,7 +91,7 @@ const WeekView: FC = (): ReactNode => {
                     <div className='flex items-center gap-4 border rounded-md w-fit px-4 text-xs font-medium text-gray-600'>
                         <Link href='/day'>DAY</Link>
                         <Link href='/week' className='border-x p-[.9em]'>WEEK</Link>
-                        <Link href={`/month/${moment().year()}/${moment().month() + 1}`}>MONTH</Link>
+                        <Link href={`/calendar/${moment().year()}/${moment().month() + 1}`}>MONTH</Link>
                     </div>
 
                     <div>

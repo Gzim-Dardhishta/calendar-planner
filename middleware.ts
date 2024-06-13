@@ -21,6 +21,9 @@ export function middleware(request: NextRequest) {
 export const config = {
     matcher: [
         '/',
+        '/calendar/:year/:month',
+        '/satff',
+        '/staff/:path*',
         '/api/users',
         '/login',
         '/signup',

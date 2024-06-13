@@ -12,7 +12,7 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
             <div className="border mt-8 rounded-lg p-8 w-3/4 mx-auto divide-y">
                 <div className="flex gap-10">
                     <div className="w-1/4">
-                    Personal Info
+                        Personal Info
                     </div>
 
                     <div className="w-3/4">
