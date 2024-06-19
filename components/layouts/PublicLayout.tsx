@@ -7,7 +7,7 @@ const PublicLayout: FC<ProfileLayoutTypes> = (props): ReactNode => {
     const { children, title } = props
 
     return (
-        <section className="relative">
+        <section className="">
             <Meta title={title} />
 
             <NavBar />

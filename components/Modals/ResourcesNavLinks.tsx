@@ -1,17 +1,17 @@
-import { IoCalendarNumberOutline } from 'react-icons/io5';
-import { AiOutlineStock } from 'react-icons/ai';
-import { BsFillPeopleFill } from 'react-icons/bs';
-import { FC, ReactNode } from 'react';
-import Link from 'next/link';
-import moment from 'moment';
+import { IoCalendarNumberOutline } from 'react-icons/io5'
+import { AiOutlineStock } from 'react-icons/ai'
+import { BsFillPeopleFill } from 'react-icons/bs'
+import { FC, ReactNode } from 'react'
+import Link from 'next/link'
+import moment from 'moment'
 
 const ResourcesNavLinks: FC = (): ReactNode => {
-    const textStyle = 'text-lg font-medium text-center';
-    const hoverBoxStyle = 'hover:shadow-xl hover:border hover:bg-gray-50 hover:cursor-pointer duration-200 ease-in';
+    const textStyle = 'text-lg font-medium text-center'
+    const hoverBoxStyle = 'hover:shadow-xl hover:border hover:bg-gray-50 hover:cursor-pointer duration-200 ease-in'
 
     // Merrni muajin dhe vitin aktual
-    const currentMonth = moment().format('MM');
-    const currentYear = moment().format('YYYY');
+    const currentMonth = moment().format('MM')
+    const currentYear = moment().format('YYYY')
 
     return (
         <>
@@ -34,7 +34,7 @@ const ResourcesNavLinks: FC = (): ReactNode => {
                 </Link>
             </div>
         </>
-    );
+    )
 }
 
-export default ResourcesNavLinks;
+export default ResourcesNavLinks

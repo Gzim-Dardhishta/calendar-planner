@@ -14,6 +14,7 @@ const AddStaff = async () => {
 
         const userData: UserI = {
             name: formData.get('name') as string,
+            username: formData.get('username') as string,
             lastName: formData.get('lastName') as string,
             email: formData.get('email') as string,
             password: formData.get('password') as string,
@@ -58,6 +59,12 @@ const AddStaff = async () => {
                             Email
                         </Label>
                         <Input type="text" name='email' className="col-span-2" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right col-span-2">
+                            Username
+                        </Label>
+                        <Input type="text" name='username' className="col-span-2" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right col-span-2">
