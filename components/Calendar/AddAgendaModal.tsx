@@ -4,24 +4,18 @@ import axios from 'axios';
 interface AddAgendaModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddAgenda: (agenda: Agenda) => void; // Shto prop për të shtuar agjendën në gjendjen e kalendarit
+  onAddAgenda: (newAgenda: any) => void;
+  selectedType: { name: string; color: string };
 }
 
-interface Agenda {
-  _id: string;
-  dateTime: string;
-  text: string;
-  createdAt: string;
-}
-
-const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda }) => {
+const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda, selectedType }) => {
   const [formData, setFormData] = useState({
     dateTime: '',
     text: '',
   });
   const [error, setError] = useState<string | null>(null);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -31,20 +25,22 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda 
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    setError(null); // Reset error before submitting
+    setError(null);
     try {
-      const response = await axios.post('/api/agendas', formData);
+      // Sigurohuni që të dërgoni të gjitha informacionet e tipit
+      const newAgenda = { ...formData, type: selectedType };
+      const response = await axios.post('/api/agendas', newAgenda);
       if (response.status === 201) {
-        onAddAgenda(response.data.data); // Shto agjendën e re në gjendjen e kalendarit
+        // Përditësoni gjendjen duke përfshirë ngjyrën e duhur
+        onAddAgenda({ ...response.data.data, type: selectedType });
         onClose();
-      } else {
-        setError('Failed to add agenda. Please try again.');
       }
     } catch (error) {
       setError('Failed to add agenda. Please try again.');
       console.error('Failed to add agenda:', error);
     }
   };
+  
 
   if (!isOpen) return null;
 
@@ -59,11 +55,17 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda 
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">Text</label>
-            <input type="text" name="text" value={formData.text} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/>
+            <textarea name="text" value={formData.text} onChange={handleChange} required className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"/>
           </div>
           <div>
-            <button type="submit" className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">Add Agenda</button>
+            <label className="block text-sm font-medium text-gray-700">Type</label>
+            <div className="py-2 px-4 rounded-md shadow-md" style={{ backgroundColor: selectedType.color }}>
+              {selectedType.name}
+            </div>
           </div>
+          <button type="submit" className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Add Agenda
+          </button>
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </form>
       </div>
