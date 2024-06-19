@@ -1,58 +1,64 @@
 'use client'
-import React, { useState, useEffect, FC } from 'react'
-import moment, { Moment } from 'moment'
-import { IoMenu } from 'react-icons/io5'
-import { FaAngleLeft, FaAngleRight, FaRegCalendarAlt } from 'react-icons/fa'
-import { LuPlus } from 'react-icons/lu'
-import { HiDotsHorizontal } from 'react-icons/hi'
-import { MdFileDownload } from 'react-icons/md'
-import { BsPinAngleFill } from 'react-icons/bs'
-import { sampleAgendas } from '@/data'
-import { Agenda } from '@/ts'
-import PublicLayout from '../layouts/PublicLayout'
-import Link from 'next/link'
-import { useParams } from 'next/navigation'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect, FC } from 'react';
+import moment, { Moment } from 'moment';
+import { IoMenu } from 'react-icons/io5';
+import { FaAngleLeft, FaAngleRight, FaRegCalendarAlt } from 'react-icons/fa';
+import { LuPlus } from 'react-icons/lu';
+import { HiDotsHorizontal } from 'react-icons/hi';
+import { MdFileDownload } from 'react-icons/md';
+import { BsPinAngleFill } from 'react-icons/bs';
+import axios from 'axios';
+import AddAgendaModal from '@/components/Calendar/AddAgendaModal';
 
 moment.updateLocale('en', {
     week: {
         dow: 1
     }
-})
+});
+
+interface Agenda {
+    _id: string;
+    dateTime: string;
+    text: string;
+    createdAt: string;
+}
 
 const Calendar: FC = () => {
-    const router = useRouter()
-    const params = useParams<{ year: string; month: string }>()
-
-    const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
-    const initialMonth = params.month ? parseInt(params.month as string, 10) - 1 : moment().month()
-
-    const initialDate = moment(`${initialYear}-${initialMonth + 1}`, 'YYYY-MM')
-    const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
-    const [agendas, setAgendas] = useState<Agenda[]>([])
-
-    const filterAgendasForDate = (date: Moment): Agenda[] => {
-        return sampleAgendas.filter((agenda) =>
-            moment(agenda.dateTime).isSame(date, 'day')
-        )
-    }
+    const [selectedDate, setSelectedDate] = useState<Moment>(moment());
+    const [agendas, setAgendas] = useState<Agenda[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
-        const agendasForDate = filterAgendasForDate(selectedDate)
-        setAgendas(agendasForDate)
-    }, [selectedDate])
+        const fetchAgendas = async () => {
+            try {
+                const response = await axios.get('/api/agendas');
+                if (response.status === 200) {
+                    setAgendas(response.data.data);
+                }
+            } catch (error) {
+                console.error('Failed to fetch agendas:', error);
+            }
+        };
+        fetchAgendas();
+    }, []);
+
+    const filterAgendasForDate = (date: Moment): Agenda[] => {
+        return agendas.filter((agenda) =>
+            moment(agenda.dateTime).isSame(date, 'day')
+        );
+    };
 
     const renderAgendasForDay = (date: string) => {
-        const filteredAgendas = sampleAgendas.filter((agenda) =>
+        const filteredAgendas = agendas.filter((agenda) =>
             moment(agenda.dateTime).isSame(date, 'day')
-        )
+        );
 
         return (
             <div>
                 {filteredAgendas.length === 0 ? null : (
                     <div className='w-[95%] mx-auto'>
                         {filteredAgendas.map((agenda, index) => (
-                            <div key={index} className=' bg-[#F5AD9E] p-1 mb-1 flex whitespace-nowrap overflow-hidden text-ellipsis rounded' style={{ maxWidth: '100%' }}>
+                            <div key={index} className='bg-[#F5AD9E] p-1 mb-1 flex whitespace-nowrap overflow-hidden text-ellipsis rounded' style={{ maxWidth: '100%' }}>
                                 <div className='w-[12vw]'>
                                     {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
                                 </div>
@@ -61,27 +67,27 @@ const Calendar: FC = () => {
                     </div>
                 )}
             </div>
-        )
-    }
+        );
+    };
 
     const renderCalendar = () => {
-        const monthStart = selectedDate.clone().startOf('month')
-        const monthEnd = selectedDate.clone().endOf('month')
-        const weeks: JSX.Element[] = []
-        let week: JSX.Element[] = []
+        const monthStart = selectedDate.clone().startOf('month');
+        const monthEnd = selectedDate.clone().endOf('month');
+        const weeks: JSX.Element[] = [];
+        let week: JSX.Element[] = [];
 
-        const startOfMonth = monthStart.clone().startOf('week')
+        const startOfMonth = monthStart.clone().startOf('week');
 
         while (startOfMonth.isBefore(monthEnd)) {
-            const weekNumber = startOfMonth.format('ww')
+            const weekNumber = startOfMonth.format('ww');
             week.push(
-                <Link href={`/week/${initialYear}/${weekNumber}`} className='border-r border-b flex text-sm p-3 pr-1 hover:underline cursor-pointer justify-end' key={`week-${weekNumber}`}>
+                <div className='border-r border-b flex text-sm p-3 pr-1 hover:underline cursor-pointer justify-end' key={`week-${weekNumber}`}>
                     <span>Week</span> <span>{weekNumber}</span>
-                </Link>
-            )
+                </div>
+            );
 
             for (let i = 0; i < 7; i++) {
-                const day = startOfMonth.clone().add(i, 'days')
+                const day = startOfMonth.clone().add(i, 'days');
                 week.push(
                     <div
                         key={day.format('YYYY-MM-DD')}
@@ -91,6 +97,7 @@ const Calendar: FC = () => {
                             <LuPlus
                                 color='#bcbcbc'
                                 className='shadow-lg border-2 border-[#858585] rounded-full cursor-pointer shadow-custom hidden group-hover:block'
+                                onClick={() => setIsModalOpen(true)}
                             />
                             <div className='text-[11px] flex gap-[3px] ml-auto uppercase font-semibold group-hover:underline'>
                                 <span>{day.format('ddd')}</span>
@@ -102,82 +109,75 @@ const Calendar: FC = () => {
                             {renderAgendasForDay(day.format('YYYY-MM-DD'))}
                         </div>
                     </div>
-                )
+                );
             }
 
-            weeks.push(<div className=' grid grid-cols-[5.5%_13.5%_13.5%_13.5%_13.5%_13.5%_13.5%_13.5%]' key={`week-${weekNumber}`}>{week}</div>)
-            week = []
+            weeks.push(<div className='grid grid-cols-[5.5%_13.5%_13.5%_13.5%_13.5%_13.5%_13.5%_13.5%]' key={`week-${weekNumber}`}>{week}</div>);
+            week = [];
 
-            startOfMonth.add(1, 'week')
+            startOfMonth.add(1, 'week');
         }
 
-        return weeks
-    }
-
-    useEffect(() => {
-        if (params.year && params.month) {
-            const newDate = moment(`${params.year}-${params.month}`, 'YYYY-MM')
-            if (newDate.isValid()) {
-                setSelectedDate(newDate)
-            }
-        }
-    }, [params.year, params.month])
+        return weeks;
+    };
 
     const handleMonthChange = (amount: number) => {
-        const newDate = selectedDate.clone().add(amount, 'month')
-        setSelectedDate(newDate)
-        router.push(`/calendar/${newDate.year()}/${newDate.month() + 1}`)
-    }
+        const newDate = selectedDate.clone().add(amount, 'month');
+        setSelectedDate(newDate);
+    };
+
+    const addNewAgenda = (newAgenda: Agenda) => {
+        setAgendas((prevAgendas) => [...prevAgendas, newAgenda]);
+    };
 
     return (
-        <PublicLayout title='Calendar'>
-            <div className='mx-10 mt-32'>
-                <div className='flex items-center justify-between w-full mb-10'>
-                    <div className='flex items-center gap-6'>
-                        <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
-                        <span className='w-36'>{selectedDate.format('MMMM YYYY')}</span>
-                        <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
-                            <button className='' onClick={() => handleMonthChange(-1)}><FaAngleLeft /></button>
-                            <div className='border-x p-3'><FaRegCalendarAlt /></div>
-                            <button className='' onClick={() => handleMonthChange(1)}><FaAngleRight /></button>
-                        </div>
-                        <div className='border px-5 py-2 rounded-md' onClick={() => setSelectedDate(moment())}>Today</div>
+        <div className='mx-10 mt-32'>
+            <div className='flex items-center justify-between w-full mb-10'>
+                <div className='flex items-center gap-6'>
+                    <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
+                    <span className='w-36'>{selectedDate.format('MMMM YYYY')}</span>
+                    <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
+                        <button className='' onClick={() => handleMonthChange(-1)}><FaAngleLeft /></button>
+                        <div className='border-x p-3'><FaRegCalendarAlt /></div>
+                        <button className='' onClick={() => handleMonthChange(1)}><FaAngleRight /></button>
                     </div>
-
-                    <div className='flex items-center gap-4'>
-                        <div className='flex items-center gap-4 border rounded-md w-fit px-4 text-xs font-medium text-gray-600'>
-                            <Link href='/day'>DAY</Link>
-                            <Link href='/week' className='border-x p-[.9em]'>WEEK</Link>
-                            <Link href={`/calendar/${selectedDate.year()}/${selectedDate.month() + 1}`}>MONTH</Link>
-                        </div>
-
-                        <div>
-                            <select className='border rounded-md p-[.45em] w-36'>
-                                <option value="">Staff view</option>
-                                <option value="">Grid view</option>
-                            </select>
-                        </div>
-
-                        <div className='p-[.6em] border rounded-md bg-gray-300'><HiDotsHorizontal /></div>
-
-                        <div className='flex items-center gap-2 border bg-gray-300 p-2 px-3 text-sm rounded-md'>
-                            <div className='rotate-180'><MdFileDownload /></div>
-                            <span className='text-sm font-medium'>TO PUBLISH</span>
-                        </div>
-
-                        <div>
-                            <BsPinAngleFill />
-                        </div>
-                    </div>
+                    <div className='border px-5 py-2 rounded-md' onClick={() => setSelectedDate(moment())}>Today</div>
                 </div>
-                <div className='border w-full mx-auto'>
-                    <>
-                        {renderCalendar()}
-                    </>
+
+                <div className='flex items-center gap-4'>
+                    <div className='flex items-center gap-4 border rounded-md w-fit px-4 text-xs font-medium text-gray-600'>
+                        <span className='p-[.9em]'>DAY</span>
+                        <span className='border-x p-[.9em]'>WEEK</span>
+                        <span className='p-[.9em]'>MONTH</span>
+                    </div>
+
+                    <div>
+                        <select className='border rounded-md p-[.45em] w-36'>
+                            <option value="">Staff view</option>
+                            <option value="">Grid view</option>
+                        </select>
+                    </div>
+
+                    <div className='p-[.6em] border rounded-md bg-gray-300'><HiDotsHorizontal /></div>
+
+                    <div className='flex items-center gap-2 border bg-gray-300 p-2 px-3 text-sm rounded-md'>
+                        <div className='rotate-180'><MdFileDownload /></div>
+                        <span className='text-sm font-medium'>TO PUBLISH</span>
+                    </div>
+
+                    <div>
+                        <BsPinAngleFill />
+                    </div>
                 </div>
             </div>
-        </PublicLayout>
-    )
-}
+            <div className='border w-full mx-auto'>
+                <>
+                    {renderCalendar()}
+                </>
+            </div>
+            <AddAgendaModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddAgenda={addNewAgenda} />
+        </div>
+    );
+};
 
-export default Calendar
+export default Calendar;
