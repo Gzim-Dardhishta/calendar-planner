@@ -6,7 +6,6 @@ import { MdEmail } from 'react-icons/md'
 import { TfiPrinter } from 'react-icons/tfi'
 import { BsFillPeopleFill } from 'react-icons/bs'
 import { useRouter } from 'next/navigation'
-import { AddUserModal } from '../Modals'
 
 const StaffTable:FC<StaffType> = ({staffList}) => {
     const router = useRouter()
@@ -31,7 +30,7 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                         <TfiPrinter size={26} />
                     </div>
                     <div className='cursor-pointer'>
-                        <AddUserModal isOpen={openModal} onClose={() => setOpenModal(false)} />
+                        {/* <AddUserModal isOpen={openModal} onClose={() => setOpenModal(false)} /> */}
                     </div>
                     <div className='cursor-pointer'>
                         <BsFillPeopleFill size={26} />
@@ -62,7 +61,7 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                             <tr onClick={() => router.push(`/staff/${s.id}`)} key={index} className='divide-x hover:bg-gray-100 duration-200 ease-in-out cursor-pointer'>
                                 <td ><input className='' type="checkbox" name="" id="" /></td>
                                 <td className=''>{s.photo}</td>
-                                <td className='p-3 py-4'>{s.firstName}</td>
+                                <td className='p-3 py-4'>{s.name}</td>
                                 <td className='p-3 py-4'>{s.lastName}</td>
                                 <td className='p-3 py-4'>{s.email}</td>
                                 <td className='p-3 py-4'>{s.phone}</td>

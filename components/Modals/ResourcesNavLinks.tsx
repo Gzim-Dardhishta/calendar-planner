@@ -3,6 +3,7 @@ import { AiOutlineStock } from 'react-icons/ai'
 import { BsFillPeopleFill } from 'react-icons/bs'
 import { FC, ReactNode } from 'react'
 import Link from 'next/link'
+import moment from 'moment'
 
 
 const ResourcesNavLinks:FC = ():ReactNode => {
@@ -11,7 +12,7 @@ const ResourcesNavLinks:FC = ():ReactNode => {
     return (
         <>
             <div className='flex items-center gap-3'>
-                <Link href='/calendar' className={`border w-36 border-transparent p-8 rounded ${hoverBoxStyle}`}>
+                <Link href={`/calendar/${moment().year()}/${moment().month() + 1}`} className={`border w-36 border-transparent p-8 rounded ${hoverBoxStyle}`}>
                     <div className='w-fit mx-auto'><IoCalendarNumberOutline size={60} /></div>
                     <div className={`${textStyle}`}>Schedule</div>
                 </Link>

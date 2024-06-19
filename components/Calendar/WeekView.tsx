@@ -12,6 +12,7 @@ import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
 import PublicLayout from '../layouts/PublicLayout'
 import { useParams, useRouter } from 'next/navigation'
+import { IoMenu } from 'react-icons/io5'
 
 const WeekView: FC = (): ReactNode => {
     
@@ -75,16 +76,23 @@ const WeekView: FC = (): ReactNode => {
     return (
         <PublicLayout title='Week'>
             <div className='flex items-center justify-between mb-10 mx-24 mt-10'>
-                <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
-                    <button onClick={handlePreviousWeek}>
-                        <FaAngleLeft />
-                    </button>
-                    <div className='border-x p-3'>
-                        <FaRegCalendarAlt />
+                <div className='flex items-center gap-6'>
+                    <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
+                    <div className='flex items-center gap-4'>
+                        <div>Week {initialWeek}</div>
+                        <div>{initialYear}</div>
                     </div>
-                    <button onClick={handleNextWeek}>
-                        <FaAngleRight />
-                    </button>
+                    <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
+                        <button onClick={handlePreviousWeek}>
+                            <FaAngleLeft />
+                        </button>
+                        <div className='border-x p-3'>
+                            <FaRegCalendarAlt />
+                        </div>
+                        <button onClick={handleNextWeek}>
+                            <FaAngleRight />
+                        </button>
+                    </div>
                 </div>
 
                 <div className='flex items-center gap-4'>
