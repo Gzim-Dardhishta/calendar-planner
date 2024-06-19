@@ -3,7 +3,7 @@
 import { usersToUsersDTO } from '@/utils/DTOs'
 import connectMongoDB from '@/libs/db'
 import User from '@/models/User'
-import { UserDTO } from '@/ts'
+import { UserI } from '@/ts'
 
 export const getAllUsers = async () => {
     try {
@@ -28,5 +28,59 @@ export const getUserById = async (id:string)  => {
         return userDTO
     } catch (error) {
         console.log(error)
+    }
+}
+
+export const saveUser = async (userData:UserI) => {
+    try {
+        const {
+            name,
+            lastName,
+            email,
+            password,
+            sex,
+            martialStatus,
+            contractType,
+            contractDates,
+            contractures,
+            dutyDays,
+            salary,
+            conversionFactor,
+            branch,
+            payrollTaxCredit,
+            serivceMarketplaceOffers,
+            selfMadeChanges,
+            changeInPastShifts,
+            hasSightInto,
+            comments
+        } = userData
+    
+        const newUser = new User({
+            name,
+            lastName,
+            email,
+            password,
+            sex,
+            martialStatus,
+            contractType,
+            contractDates,
+            contractures,
+            dutyDays,
+            salary,
+            conversionFactor,
+            branch,
+            payrollTaxCredit,
+            serivceMarketplaceOffers,
+            selfMadeChanges,
+            changeInPastShifts,
+            hasSightInto,
+            comments
+        })
+
+        await newUser.save()
+
+    } catch (error) {
+        console.log(error)
+        return {message: 'error creating user'}
     }
 }

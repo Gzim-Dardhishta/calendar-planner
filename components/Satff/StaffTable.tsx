@@ -1,11 +1,16 @@
+'use client'
+
 import { StaffType } from '@/ts'
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import { MdEmail } from 'react-icons/md'
 import { TfiPrinter } from 'react-icons/tfi'
-import { BsPersonFillAdd } from 'react-icons/bs'
 import { BsFillPeopleFill } from 'react-icons/bs'
+import { useRouter } from 'next/navigation'
+import { AddUserModal } from '../Modals'
 
 const StaffTable:FC<StaffType> = ({staffList}) => {
+    const router = useRouter()
+    const [openModal, setOpenModal] = useState(false)
 
     return (
         <div>
@@ -26,7 +31,7 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                         <TfiPrinter size={26} />
                     </div>
                     <div className='cursor-pointer'>
-                        <BsPersonFillAdd size={26} />
+                        <AddUserModal isOpen={openModal} onClose={() => setOpenModal(false)} />
                     </div>
                     <div className='cursor-pointer'>
                         <BsFillPeopleFill size={26} />
@@ -53,7 +58,8 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                     </thead>
                     <tbody>
                         {staffList!.length > 0 && staffList!.map((s, index) => (
-                            <tr key={index} className='divide-x hover:bg-gray-100 duration-200 ease-in-out cursor-pointer'>
+                            
+                            <tr onClick={() => router.push(`/staff/${s.id}`)} key={index} className='divide-x hover:bg-gray-100 duration-200 ease-in-out cursor-pointer'>
                                 <td ><input className='' type="checkbox" name="" id="" /></td>
                                 <td className=''>{s.photo}</td>
                                 <td className='p-3 py-4'>{s.firstName}</td>
