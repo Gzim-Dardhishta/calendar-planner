@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
-
+import PublicLayout from '../layouts/PublicLayout';
 interface IType {
   _id?: string;
   name: string;
@@ -78,6 +78,7 @@ const TypeManager = () => {
   };
 
   return (
+    <PublicLayout title='Calendar'>
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Manage Types</h1>
       <button
@@ -144,6 +145,7 @@ const TypeManager = () => {
         </div>
       )}
     </div>
+    </PublicLayout>
   );
 };
 

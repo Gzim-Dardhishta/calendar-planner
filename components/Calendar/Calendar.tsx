@@ -7,6 +7,7 @@ import { LuPlus } from 'react-icons/lu';
 import { HiDotsHorizontal } from 'react-icons/hi';
 import { MdFileDownload } from 'react-icons/md';
 import { BsPinAngleFill } from 'react-icons/bs';
+import PublicLayout from '../layouts/PublicLayout';
 import axios from 'axios';
 import AddAgendaModal from '@/components/Calendar/AddAgendaModal';
 import SelectTypeModal from '@/components/Calendar/SelectTypeModal';
@@ -32,6 +33,7 @@ const Calendar: FC = () => {
   const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<{ name: string; color: string }>({ name: '', color: '' });
   const [types, setTypes] = useState<{ name: string; color: string }[]>([]);
+  const [currentDate, setCurrentDate] = useState<string>('');
 
   useEffect(() => {
     const fetchAgendas = async () => {
@@ -65,33 +67,26 @@ const Calendar: FC = () => {
     return agendas.filter((agenda) => moment(agenda.dateTime).isSame(date, 'day'));
   };
 
-  
-    const renderAgendasForDay = (date: string) => {
-        const filteredAgendas = agendas.filter((agenda) =>
-          moment(agenda.dateTime).isSame(date, 'day')
-        );
-      
-        return (
-          <div>
-            {filteredAgendas.length === 0 ? null : (
-              <div className='w-[95%] mx-auto'>
-                {filteredAgendas.map((agenda, index) => (  // Here 'index' is defined
-                  <div 
-                    key={index} 
-                    className='p-1 mb-1 flex whitespace-nowrap overflow-hidden text-ellipsis rounded' 
-                    style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}
-                  >
-                    <div className='w-[12vw]'>
-                      {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
-                    </div>
-                  </div>
-                ))}
+  const renderAgendasForDay = (date: string) => {
+    const filteredAgendas = agendas.filter((agenda) => moment(agenda.dateTime).isSame(date, 'day'));
+
+    return (
+      <div>
+        {filteredAgendas.length === 0 ? null : (
+          <div className='w-[95%] mx-auto'>
+            {filteredAgendas.map((agenda, index) => (
+              <div key={index} className='p-1 mb-1 flex whitespace-nowrap overflow-hidden text-ellipsis rounded' style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
+                <div className='w-[12vw]'>
+                  {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
+                </div>
               </div>
-            )}
+            ))}
           </div>
-        );
-      };
-      
+        )}
+      </div>
+    );
+  };
+
   const renderCalendar = () => {
     const monthStart = selectedDate.clone().startOf('month');
     const monthEnd = selectedDate.clone().endOf('month');
@@ -116,7 +111,10 @@ const Calendar: FC = () => {
               <LuPlus
                 color="#bcbcbc"
                 className="shadow-lg border-2 border-[#858585] rounded-full cursor-pointer shadow-custom hidden group-hover:block"
-                onClick={() => setIsTypeModalOpen(true)}
+                onClick={() => {
+                  setCurrentDate(day.format('YYYY-MM-DD'));
+                  setIsTypeModalOpen(true);
+                }}
               />
               <div className="text-[11px] flex gap-[3px] ml-auto uppercase font-semibold group-hover:underline">
                 <span>{day.format('ddd')}</span>
@@ -149,9 +147,9 @@ const Calendar: FC = () => {
   const addNewAgenda = (newAgenda: Agenda) => {
     setAgendas((prevAgendas) => [...prevAgendas, {...newAgenda, type: { ...newAgenda.type }}]);
   };
-  
 
   return (
+    <PublicLayout title='Calendar'>
     <div className="mx-10 mt-32">
       <div className="flex items-center justify-between w-full mb-10">
         <div className="flex items-center gap-6">
@@ -218,8 +216,9 @@ const Calendar: FC = () => {
           setIsAgendaModalOpen(true);
         }}
       />
-      <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} />
+      <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} />
     </div>
+    </PublicLayout>
   );
 };
 
