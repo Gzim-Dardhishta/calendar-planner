@@ -51,10 +51,27 @@ export type ButtonType = {
     classes?: string
 }
 
-type UserType = {
-    username: string;
+interface UserI {
+    name: string;
+    lastName?: string;
     email: string;
+    username: string
     password: string;
+    sex?: string;
+    martialStatus?: string;
+    contractType?: string;
+    contractDates?: Date[];
+    contractures?: string;
+    dutyDays?: string;
+    salary?: string;
+    conversionFactor?: string;
+    branch?: string;
+    payrollTaxCredit?: string;
+    serivceMarketplaceOffers?: string;
+    selfMadeChanges?: string;
+    changeInPastShifts?: string;
+    hasSightInto?: string;
+    comments?: string;
 }
 
 type StaffType = {

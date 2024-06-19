@@ -1,12 +1,22 @@
+'use client'
+
 import { agendas, schedules, unproductive, available, unavailable } from '@/data'
 import { Plan, PlansData } from '@/ts'
 import moment, { Moment } from 'moment'
 import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 import { BsPinAngleFill } from 'react-icons/bs'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
 
 const DayView = () => {
+
+    const router = useRouter()
+    const params = useParams<{ year: string; month: string; day:string }>()
+
+    const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
+    const initialMonth = params.month ? parseInt(params.month as string, 10) - 1 : moment().month()
+    const initialDay = params.day ? parseInt(params.day as string, 10) : moment().day()
 
     const renderPlansForDay = (data: Plan[], bgColor: string) => {
         return (

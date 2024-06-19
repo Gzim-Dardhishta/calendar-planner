@@ -6,6 +6,22 @@ import moment from 'moment'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { FC, ReactNode, useState } from 'react'
+import {jwtDecode} from 'jwt-decode'
+
+interface IdType {
+    id: string
+}
+
+const decodeToken = (token:string) => {
+    try {
+        const decodedToken = jwtDecode(token as string) as IdType
+        console.log(decodeToken)
+
+        localStorage.setItem('userId', decodedToken.id)
+    } catch (error) {
+        console.error('Error decoding JWT token:', error)
+    }
+}
 
 const LogInForm:FC = ():ReactNode => {
 
@@ -19,7 +35,9 @@ const LogInForm:FC = ():ReactNode => {
     const onLogin = async () => {
         try {
             setLoading(true)
-            const response = await axios.post('/api/auth/login', user)
+            const response = await axios.post('/api/auth/login', user) 
+
+            decodeToken(response.data.token)
 
             router.push(`/calendar/${moment().year()}/${moment().month() + 1}`)
             

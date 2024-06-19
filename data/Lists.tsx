@@ -2,12 +2,18 @@ import { Agenda, Plan } from '@/ts'
 import { IoPerson } from 'react-icons/io5'
 
 export const sampleAgendas: Agenda[] = [
-    { dateTime: '2024-05-15T10:00:00', text: 'Meeting with John' },
-    { dateTime: '2024-05-16T10:00:00', text: 'Meeting with John' },
-    { dateTime: '2024-05-01T14:00:00', text: 'Lunch with Jane' },
-    { dateTime: '2024-05-02T08:30:00', text: 'Coffee with Alice' },
-    { dateTime: '2024-05-05T08:30:00', text: 'Coffee with Alice' },
-    { dateTime: '2024-04-07T08:30:00', text: 'Coffee with Alice' }
+    { dateTime: '2024-06-15T10:00:00', text: 'Meeting with John' },
+    { dateTime: '2024-06-16T10:00:00', text: 'Meeting with John' },
+    { dateTime: '2024-06-01T14:00:00', text: 'Lunch with Jane' },
+    { dateTime: '2024-06-02T08:30:00', text: 'Coffee with Alice' },
+    { dateTime: '2024-06-05T08:30:00', text: 'Coffee with Alice' },
+    { dateTime: '2024-06-07T08:30:00', text: 'Coffee with Alice' },
+    { dateTime: '2024-06-15T10:00:00', text: 'Meeting with John' },
+    { dateTime: '2024-06-16T10:00:00', text: 'Meeting with John' },
+    { dateTime: '2024-06-01T14:00:00', text: 'Lunch with Jane' },
+    { dateTime: '2024-06-02T08:30:00', text: 'Coffee with Alice' },
+    { dateTime: '2024-06-05T08:30:00', text: 'Coffee with Alice' },
+    { dateTime: '2024-06-07T08:30:00', text: 'Coffee with Alice' }
 ]
 
 export const sampleData: Record<string, Plan[]> = {

@@ -20,7 +20,7 @@ const Logout:FC = ():ReactNode => {
 
     }
     return (
-        <Button text={'Logout'} color='black' classes='rounded-full p-4 ' onClick={logout} />
+        <Button text={'Logout'} color='white' classes='text-black p-1 ' onClick={logout} />
     )
 }
 
