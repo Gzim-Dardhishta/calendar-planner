@@ -3,8 +3,8 @@ import React, { FC } from 'react'
 interface SelectTypeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  types: { name: string; color: string }[];
-  onSelectType: (type: { name: string; color: string }) => void;
+  types: { _id:string; name: string; color: string }[];
+  onSelectType: (type: { _id: string; name: string; color: string }) => void;
 }
 
 const SelectTypeModal: FC<SelectTypeModalProps> = ({ isOpen, onClose, types, onSelectType }) => {

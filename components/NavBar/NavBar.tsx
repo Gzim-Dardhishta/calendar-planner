@@ -1,10 +1,53 @@
 'use client'
 import { FaCaretRight } from 'react-icons/fa'
 import { FaCaretDown } from 'react-icons/fa'
-import { FC, ReactNode, useState } from 'react'
+import { FC, ReactNode, useEffect, useState } from 'react'
 import { ResourcesNavLinks, UserProfileModalLinks } from '../Modals'
+import { jwtDecode } from 'jwt-decode'
+import axios from 'axios'
+import { UserDTO, UserI } from '@/ts'
+
+interface IdType {
+    id: string,
+    username: string
+}
 
 const NavBar:FC = ():ReactNode => {
+
+    const [users, setUsers] = useState<UserDTO[]>([])
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/api/staff')
+                if (response.status === 200) {
+                    setUsers(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch user:', error)
+            }
+        }
+        fetchUser()
+    }, [])
+
+    const getUserById = (userId: string | undefined) => {
+        if (!users) {
+            console.error('User list is undefined')
+            return undefined
+        }
+        const user = users.find(user => user.id === userId)
+        return user?.firstName
+    }
+
+    const getIdFromLocalStorage = () => {
+        try {
+            const id = localStorage.getItem('userId') as string
+            return id
+        } catch (error) {
+            console.log('could not get the id')
+        }
+    }
+
 
     const [openLinks, setOpenLinks] = useState(false)
     const [openUserLinks, setOpenUserLinks] = useState(false)
@@ -26,7 +69,10 @@ const NavBar:FC = ():ReactNode => {
             <div>
                 <div onClick={() => setOpenUserLinks(!openUserLinks)} className='flex items-center gap-5 p-4 border-l border-gray-300 w-fit relative'>
                     <div className='p-3 bg-white rounded-full'></div>
-                    <div>John</div>
+                
+                    <div>
+                        {getUserById(getIdFromLocalStorage())}
+                    </div>
                     <div><FaCaretDown /></div>
                 </div>
 

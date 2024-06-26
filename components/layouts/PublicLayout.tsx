@@ -1,14 +1,14 @@
 import { FC, Fragment, ReactNode } from 'react'
-import { ProfileLayoutTypes } from '@/ts'
-import { Meta } from '@/data/Metas'
+import { ProfileLayoutTypes, UserDTO } from '@/ts'
+// import { Meta } from '@/data/Metas'
 import { NavBar } from '../NavBar'
 
-const PublicLayout: FC<ProfileLayoutTypes> = (props): ReactNode => {
+const PublicLayout: FC<ProfileLayoutTypes> = (props) => {
     const { children, title } = props
 
     return (
         <section className="">
-            <Meta title={title} />
+            {/* <Meta title={title} /> */}
 
             <NavBar />
 

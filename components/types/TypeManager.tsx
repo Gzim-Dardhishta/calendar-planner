@@ -3,6 +3,7 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react'
 import axios from 'axios'
 import PublicLayout from '../layouts/PublicLayout'
+import Link from 'next/link'
 interface IType {
   _id?: string;
   name: string;
@@ -79,48 +80,54 @@ const TypeManager = () => {
 
     return (
         <PublicLayout title='Calendar'>
-            <div className="container mx-auto p-4">
-                <h1 className="text-2xl font-bold mb-4">Manage Types</h1>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    className="mb-4 py-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600"
-                >
+            <div className="container mx-auto p-24 px-16 flex">
+                <div className='w-96 flex flex-col gap-4'>
+                    <Link href='/ssp/branchlayers'>Branch Layer</Link>
+                    <Link href='/ssp/branchlayers/shifttypes'>Types of Services</Link>
+                </div>
+                <div className='w-full'>
+                    <h1 className="text-2xl font-bold mb-4">Manage Types</h1>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="mb-4 py-2 px-4 bg-green-500 text-white rounded-md hover:bg-green-600"
+                    >
         Add Type
-                </button>
-                <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {types.map((type) => (
-                                <tr key={type._id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{type.name}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <div className="h-6 w-6 rounded-full" style={{ backgroundColor: type.color }}></div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <button
-                                            onClick={() => handleEdit(type)}
-                                            className="text-indigo-600 hover:text-indigo-900 mr-4"
-                                        >
-                    Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(type._id!)}
-                                            className="text-red-600 hover:text-red-900"
-                                        >
-                    Delete
-                                        </button>
-                                    </td>
+                    </button>
+                    <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Color</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {types.map((type) => (
+                                    <tr key={type._id}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{type.name}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="h-6 w-6 rounded-full" style={{ backgroundColor: type.color }}></div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <button
+                                                onClick={() => handleEdit(type)}
+                                                className="text-indigo-600 hover:text-indigo-900 mr-4"
+                                            >
+                    Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(type._id!)}
+                                                className="text-red-600 hover:text-red-900"
+                                            >
+                    Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {isModalOpen && (

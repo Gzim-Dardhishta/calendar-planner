@@ -5,7 +5,7 @@ import { FC, ReactNode, useEffect, useState } from 'react'
 import { FaRegCalendarAlt, FaAngleLeft, FaAngleRight } from 'react-icons/fa'
 import { FiInfo } from 'react-icons/fi'
 import { BsFillPlusCircleFill, BsPinAngleFill } from 'react-icons/bs'
-import { Day, Plan } from '@/ts'
+import { Day } from '@/ts'
 import { sampleData } from '@/data'
 import Link from 'next/link'
 import { HiDotsHorizontal } from 'react-icons/hi'
@@ -13,6 +13,34 @@ import { MdFileDownload } from 'react-icons/md'
 import PublicLayout from '../layouts/PublicLayout'
 import { useParams, useRouter } from 'next/navigation'
 import { IoMenu } from 'react-icons/io5'
+import axios from 'axios'
+import AddAgendaModal from './AddAgendaModal'
+
+interface Type {
+    _id: string;
+    name: string;
+    color: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Agenda {
+    _id: string;
+    dateTime: string;
+    typeOfService: string;
+    serviceDuration: string;
+    startTime: string;
+    endTime: string;
+    pauseTime: string;
+    text: string;
+    copyService: boolean;
+    number: number;
+    type: Type;
+    toWho: string;
+    lunch: boolean;
+    hotMeal: boolean;
+    createdAt: string;
+}
 
 const WeekView: FC = (): ReactNode => {
     
@@ -21,16 +49,57 @@ const WeekView: FC = (): ReactNode => {
     const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
     const initialWeek = params.week ? parseInt(params.week as string, 10) : moment().week()
 
+    const initialDate = moment(`${initialYear}-${initialWeek}`, 'YYYY-WW')
+    const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
+
     const [week, setWeek] = useState<number>(initialWeek)
     const [days, setDays] = useState<Day[]>([])
+    const [agendas, setAgendas] = useState<Agenda[]>([])
+    const [types, setTypes] = useState<{_id: string; name: string; color: string }[]>([])
+    const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
+    const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
+    const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
+    const [currentDate, setCurrentDate] = useState<string>('')
     const router = useRouter()
 
-    console.log(week)
+
+    useEffect(() => {
+        const fetchAgendas = async () => {
+            try {
+                const response = await axios.get('/api/agendas')
+                if (response.status === 200) {
+                    setAgendas(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch agendas:', error)
+            }
+        }
+        fetchAgendas()
+    }, [])
+
+    useEffect(() => {
+        const fetchTypes = async () => {
+            try {
+                const response = await axios.get('/api/types')
+                if (response.status === 200) {
+                    setTypes(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchTypes()
+    }, [])
+
     
 
     useEffect(() => {
         setDays(getDaysByWeekNumber(initialYear, week))
     }, [week])
+
+    const addNewAgenda = (newAgenda: Agenda) => {
+        setAgendas((prevAgendas) => [...prevAgendas, {...newAgenda, type: { ...newAgenda.type }}])
+    }
 
     const getDaysByWeekNumber = (year: number, weekNumber: number): Day[] => {
         const firstDay = moment().year(year).isoWeek(weekNumber).startOf('isoWeek')
@@ -45,13 +114,16 @@ const WeekView: FC = (): ReactNode => {
         })
     }
 
-    const renderPlansForDay = (fullDate: string, plans: Plan[], bgColor: string) => {
-        const filteredPlans = plans.filter(plan => moment(plan.dateTime).isSame(fullDate, 'day'))
+    const renderPlansForDay = (fullDate: string, bgColor: string, type: string) => {
+        // const filteredPlans = agendas.filter((plan) => moment(plan.dateTime).isSame(fullDate, 'day'))
+        const filteredPlans = agendas.filter(
+            (plan) => moment(plan.dateTime).isSame(fullDate, 'day') && plan.type?.name === type
+        )
         return (
             filteredPlans.length > 0 && (
                 <div className='w-[95%] mx-auto'>
                     {filteredPlans.map((plan, index) => (
-                        <div key={index} className={` w-full bg-[#F5AD9E] p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis ${bgColor}`}>
+                        <div key={index} className={' w-full p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis'} style={{backgroundColor: bgColor}}>
                             {moment(plan.dateTime).format('MMM DD, YYYY')} - {moment(plan.dateTime).format('hh:mm A')} - {plan.text}
                         </div>
                     ))}
@@ -65,22 +137,13 @@ const WeekView: FC = (): ReactNode => {
 
     const currentDayStyle = (d: Day, color: string) => moment(d.fullDate).isSame(moment(), 'day') ? color : ''
 
-    const contentTypes = ['AGENDA', 'SCHEDULE_1', 'UNPRODUCTIVE', 'UNAVAILABLE']
-    const contentColors: Record<string, [string, string]> = {
-        AGENDA: ['bg-[#f0cd43]', 'bg-[#faecb0]'],
-        SCHEDULE_1: ['bg-[#E5320C]', 'bg-[#F5AD9E]'],
-        UNPRODUCTIVE: ['bg-[#ff4040]', 'bg-[#ffadac]'],
-        UNAVAILABLE: ['bg-[#979797]', 'bg-[#b0afaf]']
-    }
-
     return (
         <PublicLayout title='Week'>
             <div className='flex items-center justify-between mb-10 mx-24 mt-10'>
                 <div className='flex items-center gap-6'>
                     <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
                     <div className='flex items-center gap-4'>
-                        <div>Week {initialWeek}</div>
-                        <div>{initialYear}</div>
+                        {selectedDate.format('MMMM WW')}
                     </div>
                     <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
                         <button onClick={handlePreviousWeek}>
@@ -130,29 +193,35 @@ const WeekView: FC = (): ReactNode => {
                         </div>
                     ))}
                 </div>
-                {contentTypes.map((label, labelIndex) => (
+                {types.map((label, labelIndex) => (
                     <div key={labelIndex}>
                         <div className='my-1 grid grid-cols-7'>
                             {days.map((d, index) => (
                                 <div
                                     key={index}
-                                    className={`p-1 text-xs text-left text-white w-full flex justify-between items-center group hover:cursor-pointer ${contentColors[label][0]} ${currentDayStyle(d, contentColors[label][1])}`}
+                                    className={`p-1 text-xs text-left text-black w-full flex justify-between items-center group hover:cursor-pointer ${currentDayStyle(d, label.color)}`} style={{backgroundColor: label.color}}
                                 >
-                                    {index === 0 ? label : ''}
-                                    <BsFillPlusCircleFill size={16} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                                    {index === 0 ? label.name : ''}
+                                    <BsFillPlusCircleFill size={16} 
+                                        onClick={() => {
+                                            setCurrentDate(d.fullDate)
+                                            setSelectedType(label)
+                                            setIsAgendaModalOpen(true)
+                                        }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
                                 </div>
                             ))}
                         </div>
                         <div className='grid grid-cols-7 divide-x border-b'>
                             {days.map((d, index) => (
                                 <div key={index} className={`font-medium text-xs py-1 overflow-hidden whitespace-nowrap ${currentDayStyle(d, 'bg-[#00000012]')}`}>
-                                    {renderPlansForDay(d.fullDate, sampleData[label], contentColors[label][1])}
+                                    {renderPlansForDay(d.fullDate, label.color, label.name)}
                                 </div>
                             ))}
                         </div>
                     </div>
                 ))}
             </div>
+            <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} />
         </PublicLayout>
     )
 }

@@ -53,6 +53,7 @@ export type ButtonType = {
 
 interface UserI {
     name: string;
+    firstName: string;
     lastName?: string;
     email: string;
     username: string
@@ -78,17 +79,59 @@ type StaffType = {
     staffList: UsersDTO[] | undefined
 }
 
-export interface UserDTO {
-    id: string
-    photo: string
-    firstName: string
-    lastName: string
-    phone: number
-    username: string
-    email: string
-    function: string
+interface UserDTO {
+    id: string;
+    firstName: string;
+    lastName?: string;
+    email: string;
+    username: string;
+    sex?: string;
+    martialStatus?: string;
+    contractType?: string;
+    contractDates?: Date[];
+    contractures?: string;
+    dutyDays?: string;
+    salary?: string;
+    conversionFactor?: string;
+    branch?: string;
+    payrollTaxCredit?: string;
+    serivceMarketplaceOffers?: string;
+    selfMadeChanges?: string;
+    changeInPastShifts?: string;
+    hasSightInto?: string;
+    comments?: string;
 }
 
 export interface AccountInfoI {
     user: UserDTO | undefined
+}
+
+export type CalendarType = {
+    userList: UserDTO[] | undefined
+}
+
+interface Type {
+    _id: string;
+    name: string;
+    color: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Agenda {
+    _id: string;
+    dateTime: string;
+    typeOfService: string;
+    serviceDuration: string;
+    startTime: string;
+    endTime: string;
+    pauseTime: string;
+    text: string;
+    copyService: boolean;
+    number: number;
+    type: Type;
+    toWho: string;
+    lunch: boolean;
+    hotMeal: boolean;
+    createdAt: string;
 }

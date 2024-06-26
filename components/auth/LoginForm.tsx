@@ -9,13 +9,14 @@ import React, { FC, ReactNode, useState } from 'react'
 import {jwtDecode} from 'jwt-decode'
 
 interface IdType {
-    id: string
+    id: string,
+    username: string
 }
 
-const decodeToken = (token:string) => {
+const decodeToken = (token: string) => {
     try {
-        const decodedToken = jwtDecode(token as string) as IdType
-        console.log(decodeToken)
+        const decodedToken: IdType = jwtDecode(token)
+        console.log(decodedToken)
 
         localStorage.setItem('userId', decodedToken.id)
     } catch (error) {

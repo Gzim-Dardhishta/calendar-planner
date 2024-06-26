@@ -6,11 +6,14 @@ import { FaAngleLeft, FaAngleRight, FaRegCalendarAlt } from 'react-icons/fa'
 import { LuPlus } from 'react-icons/lu'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
-import { BsPinAngleFill } from 'react-icons/bs'
+import { BsFillPlusCircleFill, BsPinAngleFill } from 'react-icons/bs'
 import PublicLayout from '../layouts/PublicLayout'
 import axios from 'axios'
 import AddAgendaModal from '@/components/Calendar/AddAgendaModal'
 import SelectTypeModal from '@/components/Calendar/SelectTypeModal'
+import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { CalendarType, UserDTO } from '@/ts'
 
 moment.updateLocale('en', {
     week: {
@@ -18,22 +21,52 @@ moment.updateLocale('en', {
     }
 })
 
-interface Agenda {
-  _id: string;
-  dateTime: string;
-  text: string;
-  type: { name: string; color: string };
-  createdAt: string;
+interface Type {
+    _id: string;
+    name: string;
+    color: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-const Calendar: FC = () => {
-    const [selectedDate, setSelectedDate] = useState<Moment>(moment())
+interface Agenda {
+    _id: string;
+    dateTime: string;
+    typeOfService: string;
+    serviceDuration: string;
+    startTime: string;
+    endTime: string;
+    pauseTime: string;
+    text: string;
+    copyService: boolean;
+    number: number;
+    type: Type;
+    toWho: string;
+    lunch: boolean;
+    hotMeal: boolean;
+    createdAt: string;
+}
+
+const Calendar: FC<CalendarType> = ({userList}) => {
+
+    const router = useRouter()
+
+    const params = useParams<{ year: string; month: string }>()
+
+    const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
+    const initialMonth = params.month ? parseInt(params.month as string, 10) - 1 : moment().month()
+
+    const initialDate = moment(`${initialYear}-${initialMonth + 1}`, 'YYYY-MM')
+    const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
     const [agendas, setAgendas] = useState<Agenda[]>([])
+    const [users, setUsers] = useState<UserDTO[] | undefined>(userList)
     const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
-    const [selectedType, setSelectedType] = useState<{ name: string; color: string }>({ name: '', color: '' })
-    const [types, setTypes] = useState<{ name: string; color: string }[]>([])
+    const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
+    const [types, setTypes] = useState<{_id: string; name: string; color: string }[]>([])
     const [currentDate, setCurrentDate] = useState<string>('')
+
+    const [viewMode, setViewMode] = useState<string>('grid')
 
     useEffect(() => {
         const fetchAgendas = async () => {
@@ -63,20 +96,16 @@ const Calendar: FC = () => {
         fetchTypes()
     }, [])
 
-    const filterAgendasForDate = (date: Moment): Agenda[] => {
-        return agendas.filter((agenda) => moment(agenda.dateTime).isSame(date, 'day'))
-    }
-
     const renderAgendasForDay = (date: string) => {
         const filteredAgendas = agendas.filter((agenda) => moment(agenda.dateTime).isSame(date, 'day'))
 
         return (
             <div>
                 {filteredAgendas.length === 0 ? null : (
-                    <div className='w-[95%] mx-auto'>
+                    <div className={`${viewMode === 'grid' ? 'w-full mx-auto p-1' : 'flex flex-wrap gap-2'}`}>
                         {filteredAgendas.map((agenda, index) => (
-                            <div key={index} className='p-1 mb-1 flex whitespace-nowrap overflow-hidden text-ellipsis rounded' style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
-                                <div className='w-[12vw]'>
+                            <div key={index} className={`p-1 mb-1 rounded whitespace-nowrap ${viewMode === 'grid' ? 'overflow-hidden text-ellipsis w-full' : 'w-fit'}`} style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
+                                <div className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
                                     {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
                                 </div>
                             </div>
@@ -87,7 +116,159 @@ const Calendar: FC = () => {
         )
     }
 
-    const renderCalendar = () => {
+
+    const getAllDaysFromWeeksInMonth = (date: Moment) => {
+        const startOfMonth = date?.clone().startOf('month')
+        const endOfMonth = date?.clone().endOf('month')
+
+        let startOfWeek = startOfMonth?.clone().startOf('week')
+        let endOfWeek = endOfMonth?.clone().endOf('week')
+
+        const days = []
+        let currentDay = startOfWeek?.clone()
+
+        while (currentDay?.isSameOrBefore(endOfWeek)) {
+            days.push({
+                dayName: currentDay.format('ddd'),
+                dayNumber: currentDay.format('D'),
+                date: currentDay.format('YYYY-MM-DD')
+            })
+            currentDay.add(1, 'day')
+        }
+
+        return days
+    }
+
+    const renderAgendasForStaffDay = (staffId:any, day:any) => {
+        const staffAgendas = agendas.filter(
+            (agenda) => agenda.toWho === staffId && moment(agenda.dateTime).isSame(day, 'day')
+        )
+
+        return (
+            <div className='flex flex-col gap-1'>
+                {staffAgendas.map((agenda, index) => (
+                    <div key={index} className="p-1 rounded text-xs overflow-hidden  whitespace-nowrap" style={{ backgroundColor: agenda.type.color }}>
+                        {agenda.text}
+                    </div>
+                ))}
+            </div>
+        )
+    }
+
+    const renderCalendarStaff = (selectedDate:any) => {
+        const days = getAllDaysFromWeeksInMonth(selectedDate)
+    
+        const weeks = []
+        let currentWeek:any = []
+        let weekNumber = ''
+    
+        days.forEach((day, index) => {
+            if (index % 7 === 0) {
+                if (currentWeek.length > 0) {
+                    weeks.push({ weekNumber, days: currentWeek })
+                    currentWeek = []
+                }
+                weekNumber = moment(day.date).format('ww')
+            }
+            currentWeek.push(day)
+        })
+    
+        if (currentWeek.length > 0) {
+            weeks.push({ weekNumber, days: currentWeek })
+        }
+    
+        return (
+            <div className="flex flex-col overflow-auto w-full">
+                <div className='flex w-full'>
+                    <div className='w-[100px]  text-ellipsis flex justify-end items-center 2xl:mr-0 mr-3 invisible'>hhhh</div>
+                    <div className="grid grid-flow-col w-full">
+                        {weeks.map((week, index) => (
+                            <div key={index} className=" text-center">
+                                <div className="font-bold flex  text-xs py-2 px-2">Week {week.weekNumber}</div>
+                                <div className="flex py-2">
+                                    {week.days.map((day:any) => (
+                                        <div key={day.date} className="flex-1 text-center text-xs min-w-8  w-8">
+                                            <p>{day.dayName}</p>
+                                            <p>{day.dayNumber}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="flex">
+                    <div className="flex flex-col border-r w-[100vw]">
+                        {users!.map((staff) => (
+                            <div key={staff.id} className="flex">
+                                <div className='w-[100px] max-w-[100px] text-ellipsis flex items-center justify-end p-2'>
+                                    {staff.username}
+                                </div>
+                                <div className="flex w-full">
+                                    {days.map((day) => (
+                                        <div key={day.date} className="p-[3px] flex-1 border text-xs min-w-8 w-8">
+                                            {renderAgendasForStaffDay(staff.id, day.date)}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
+    const renderCalendarList = () => {
+        const monthStart = selectedDate.clone().startOf('month')
+        const monthEnd = selectedDate.clone().endOf('month')
+        const weeks: JSX.Element[] = []
+        let currentWeekStart = monthStart.clone().startOf('week')
+    
+        while (currentWeekStart.isBefore(monthEnd)) {
+            const weekStart = currentWeekStart.clone()
+            const weekNumber = weekStart.format('W')
+            const year = weekStart.format('YYYY')
+            weeks.push(
+                <div key={weekNumber} className='flex flex-col'>
+                    <div className=''>
+                        {Array(7).fill(0).map((_, index) => {
+                            const day = weekStart.clone().add(index, 'days')
+                            return (
+                                <div key={day.format('YYYY-MM-DD')} className='flex items-start border-b text-xs group'>
+                                    <div className='w-[15%] border-r p-2 flex flex-col gap-2'>
+                                        <Link className='hover:underline' href={`/day/${initialYear}/${initialMonth}/${day.day()}`}>{day.format('ddd YYYY-MM-DD')}</Link>
+                                        <Link className='hover:underline' href={`/week/${initialYear}/${weekNumber}`}>
+                                            Week {weekNumber}
+                                        </Link>
+                                    </div>
+                                    <div className='w-full border-0 p-1 flex gap-2 relative'>
+                                        <div className=' absolute top-1 left-1'>
+                                            <BsFillPlusCircleFill
+                                                size={20}
+                                                color="#333"
+                                                className="shadow-lg border-2 border-[#858585] rounded-full cursor-pointer shadow-custom hidden group-hover:block"
+                                                onClick={() => {
+                                                    setCurrentDate(day.format('YYYY-MM-DD'))
+                                                    setIsTypeModalOpen(true)
+                                                }}
+                                            />
+                                        </div>
+                                        {renderAgendasForDay(day.format('YYYY-MM-DD'))}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                </div>
+            )
+            currentWeekStart.add(1, 'week')
+        }
+    
+        return <div>{weeks}</div>
+    }
+
+    const renderCalendarGrid = () => {
         const monthStart = selectedDate.clone().startOf('month')
         const monthEnd = selectedDate.clone().endOf('month')
         const weeks: JSX.Element[] = []
@@ -99,7 +280,7 @@ const Calendar: FC = () => {
             const weekNumber = startOfMonth.format('ww')
             week.push(
                 <div className="border-r border-b flex text-sm p-3 pr-1 hover:underline cursor-pointer justify-end" key={`week-${weekNumber}`}>
-                    <span>Week</span> <span>{weekNumber}</span>
+                    <Link href={`/week/${initialYear}/${weekNumber}`}>Week</Link> <span>{weekNumber}</span>
                 </div>
             )
 
@@ -139,13 +320,40 @@ const Calendar: FC = () => {
         return weeks
     }
 
-    const handleMonthChange = (amount: number) => {
-        const newDate = selectedDate.clone().add(amount, 'month')
-        setSelectedDate(newDate)
+    useEffect(() => {
+        if (params.year && params.month) {
+            const newDate = moment(`${params.year}-${params.month}`, 'YYYY-MM')
+            if (newDate.isValid()) {
+                setSelectedDate(newDate)
+            }
+        }
+    }, [params.year, params.month])
+
+    const handleViewModeChange = (mode: string) => {
+        setViewMode(mode)
+        localStorage.setItem('viewMode', mode)
+    }
+
+    const handleMonthChange = (direction: 'prev' | 'next') => {
+        const newDate = selectedDate.clone().add(direction === 'prev' ? -1 : 1, 'month')
+        setSelectedDate((prevDate) => prevDate.clone().add(direction === 'prev' ? -1 : 1, 'month'))
+        router.push(`/calendar/${newDate.year()}/${newDate.month() + 1}`)
     }
 
     const addNewAgenda = (newAgenda: Agenda) => {
         setAgendas((prevAgendas) => [...prevAgendas, {...newAgenda, type: { ...newAgenda.type }}])
+    }
+
+    const renderCalendarContent = () => {
+        switch (viewMode) {
+        case 'list':
+            return renderCalendarList()
+        case 'staff':
+            return renderCalendarStaff(selectedDate)
+        case 'grid':
+        default:
+            return renderCalendarGrid()
+        }
     }
 
     return (
@@ -158,32 +366,33 @@ const Calendar: FC = () => {
                         </div>
                         <span className="w-36">{selectedDate.format('MMMM YYYY')}</span>
                         <div className="flex items-center gap-4 border rounded-md w-fit px-4">
-                            <button className="" onClick={() => handleMonthChange(-1)}>
+                            <button className="" onClick={() => handleMonthChange('prev')}>
                                 <FaAngleLeft />
                             </button>
                             <div className="border-x p-3">
                                 <FaRegCalendarAlt />
                             </div>
-                            <button className="" onClick={() => handleMonthChange(1)}>
+                            <button className="" onClick={() => handleMonthChange('next')}>
                                 <FaAngleRight />
                             </button>
                         </div>
-                        <div className="border px-5 py-2 rounded-md" onClick={() => setSelectedDate(moment())}>
+                        <div className="border px-5 py-2 rounded-lg cursor-pointer" onClick={() => setSelectedDate(moment())}>
                             Today
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-4 border rounded-md w-fit px-4 text-xs font-medium text-gray-600">
-                            <span className="p-[.9em]">DAY</span>
-                            <span className="border-x p-[.9em]">WEEK</span>
-                            <span className="p-[.9em]">MONTH</span>
+                            <Link href={`/day/${moment().year()}/${moment().month() + 1}/${moment().date()}`}>DAY</Link>
+                            <Link href={`/week/${selectedDate.year()}/${selectedDate.week()}`} className='border-x p-[.9em]'>WEEK</Link>
+                            <Link href={`/calendar/${selectedDate.year()}/${selectedDate.month() + 1}`}>MONTH</Link>
                         </div>
 
-                        <div>
-                            <select className="border rounded-md p-[.45em] w-36">
-                                <option value="">Staff view</option>
-                                <option value="">Grid view</option>
+                        <div className=''>
+                            <select className="border p-[.45em] w-36" onChange={(e) => handleViewModeChange(e.target.value)}>
+                                <option value="grid">Grid view</option>
+                                <option value="staff">Staff view</option>
+                                <option value="list">List view</option>
                             </select>
                         </div>
 
@@ -203,8 +412,8 @@ const Calendar: FC = () => {
                         </div>
                     </div>
                 </div>
-                <div className="border w-full mx-auto">
-                    <>{renderCalendar()}</>
+                <div className={`${viewMode === 'staff' ? 'border-0 w-full mx-auto' : 'border w-full mx-auto'}`}>
+                    {renderCalendarContent()}
                 </div>
                 <SelectTypeModal
                     isOpen={isTypeModalOpen}

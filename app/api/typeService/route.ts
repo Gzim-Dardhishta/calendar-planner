@@ -1,13 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/utils/dbConnect'
-import Agenda from '@/models/Agenda'
 import connectMongoDB from '@/libs/db'
+import TypeService from '@/models/TypeService'
+import dbConnect from '@/utils/dbConnect'
+import mongoose from 'mongoose'
+import { NextRequest, NextResponse } from 'next/server'
+
+export interface ITypeService {
+    name: string;
+    category: string;
+    linkedLayer?: mongoose.Schema.Types.ObjectId[]
+  }
 
 export async function GET(req: NextRequest) {
     try {
         await connectMongoDB()
-        const agendas = await Agenda.find({}).populate('type')
-        return NextResponse.json({ success: true, data: agendas }, { status: 200 })
+        const typesOfService = await TypeService.find({})
+        return NextResponse.json({ success: true, data: typesOfService }, { status: 200 })
     } catch (error) {
         console.error('API Error:', (error as Error).message, error)
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
@@ -18,9 +25,8 @@ export async function POST(req: NextRequest) {
     try {
         await connectMongoDB()
         const data = await req.json()
-        const agenda = new Agenda(data)
-        await agenda.save()
-        return NextResponse.json({ success: true, data: agenda }, { status: 201 })
+        const type: ITypeService = await TypeService.create(data)
+        return NextResponse.json({ success: true, data: type }, { status: 201 })
     } catch (error) {
         console.error('API Error:', (error as Error).message, error)
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })

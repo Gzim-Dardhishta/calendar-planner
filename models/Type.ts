@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IType extends Document {
   name: string;
@@ -6,11 +6,11 @@ export interface IType extends Document {
 }
 
 const TypeSchema: Schema = new Schema(
-  {
-    name: { type: String, required: true },
-    color: { type: String, required: true }
-  },
-  { timestamps: true }
-);
+    {
+        name: { type: String, required: true },
+        color: { type: String, required: true }
+    },
+    { timestamps: true }
+)
 
-export default mongoose.models.Type || mongoose.model<IType>('Type', TypeSchema);
+export default mongoose.models.Type || mongoose.model<IType>('Type', TypeSchema)
