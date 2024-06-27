@@ -23,6 +23,7 @@ type Plan = {
 type Day = {
     day: string
     date: string
+    dayNum: string
     fullDate: string
     isCurrentWeek: boolean
 }

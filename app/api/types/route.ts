@@ -5,7 +5,7 @@ import connectMongoDB from '@/libs/db'
 
 export async function GET(req: NextRequest) {
     try {
-        await connectMongoDB()
+        await dbConnect()
         const types = await Type.find({})
         return NextResponse.json({ success: true, data: types }, { status: 200 })
     } catch (error) {

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/utils/dbConnect'
 import Agenda from '@/models/Agenda'
-import connectMongoDB from '@/libs/db'
 
 export async function GET(req: NextRequest) {
     try {
-        await connectMongoDB()
+        await dbConnect()
         const agendas = await Agenda.find({}).populate('type')
         return NextResponse.json({ success: true, data: agendas }, { status: 200 })
     } catch (error) {
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
     try {
-        await connectMongoDB()
+        await dbConnect()
         const data = await req.json()
         const agenda = new Agenda(data)
         await agenda.save()

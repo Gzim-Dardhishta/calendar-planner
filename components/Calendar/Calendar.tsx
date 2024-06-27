@@ -54,7 +54,7 @@ const Calendar: FC<CalendarType> = ({userList}) => {
     const params = useParams<{ year: string; month: string }>()
 
     const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
-    const initialMonth = params.month ? parseInt(params.month as string, 10) - 1 : moment().month()
+    const initialMonth = params.month ? parseInt(params.month as string, 10) : moment().month()
 
     const initialDate = moment(`${initialYear}-${initialMonth + 1}`, 'YYYY-MM')
     const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
@@ -237,7 +237,7 @@ const Calendar: FC<CalendarType> = ({userList}) => {
                             return (
                                 <div key={day.format('YYYY-MM-DD')} className='flex items-start border-b text-xs group'>
                                     <div className='w-[15%] border-r p-2 flex flex-col gap-2'>
-                                        <Link className='hover:underline' href={`/day/${initialYear}/${initialMonth}/${day.day()}`}>{day.format('ddd YYYY-MM-DD')}</Link>
+                                        <Link className='hover:underline' href={`/day/${initialYear}/${day.format('M')}/${day.date()}`}>{day.format('ddd YYYY-MM-DD')}</Link>
                                         <Link className='hover:underline' href={`/week/${initialYear}/${weekNumber}`}>
                                             Week {weekNumber}
                                         </Link>

@@ -108,6 +108,7 @@ const WeekView: FC = (): ReactNode => {
             return {
                 day: currentDay.format('ddd'),
                 date: currentDay.format('DD MMM'),
+                dayNum: currentDay.format('D'),
                 fullDate: currentDay.format('YYYY-MM-DD'),
                 isCurrentWeek: currentDay.isSame(moment(), 'week')
             }
@@ -187,10 +188,10 @@ const WeekView: FC = (): ReactNode => {
             <div className='w-[85%] mx-auto border-y'>
                 <div className='grid grid-cols-7 border-b divide-x'>
                     {days.map((d, index) => (
-                        <div key={index} className={`font-medium text-sm py-3 text-center col-span-1 ${currentDayStyle(d, 'bg-[#00000012]')}`}>
+                        <Link href={`/day/${initialYear}/${selectedDate.month() + 1}/${d.dayNum}`} key={index} className={`font-medium text-sm py-3 text-center col-span-1 hover:underline ${currentDayStyle(d, 'bg-[#00000012]')}`}>
                             {d.day} {d.date}
                             <span className='w-fit float-right mt-1 mr-3'><FiInfo /></span>
-                        </div>
+                        </Link>
                     ))}
                 </div>
                 {types.map((label, labelIndex) => (
