@@ -47,7 +47,7 @@ interface Agenda {
     createdAt: string;
 }
 
-const Calendar: FC<CalendarType> = ({userList}) => {
+const Calendari: FC<CalendarType> = ({userList}) => {
 
     const router = useRouter()
 
@@ -55,9 +55,13 @@ const Calendar: FC<CalendarType> = ({userList}) => {
 
     const initialYear = params.year ? parseInt(params.year as string, 10) : moment().year()
     const initialMonth = params.month ? parseInt(params.month as string, 10) : moment().month()
+    
 
     const initialDate = moment(`${initialYear}-${initialMonth + 1}`, 'YYYY-MM')
     const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
+
+    const [date, setDate] = React.useState<Date | undefined>(new Date())
+
     const [agendas, setAgendas] = useState<Agenda[]>([])
     const [users, setUsers] = useState<UserDTO[] | undefined>(userList)
     const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
@@ -105,7 +109,12 @@ const Calendar: FC<CalendarType> = ({userList}) => {
                     <div className={`${viewMode === 'grid' ? 'w-full mx-auto p-1' : 'flex flex-wrap gap-2'}`}>
                         {filteredAgendas.map((agenda, index) => (
                             <div key={index} className={`p-1 mb-1 rounded whitespace-nowrap ${viewMode === 'grid' ? 'overflow-hidden text-ellipsis w-full' : 'w-fit'}`} style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
-                                <div className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
+                                <div
+                                    onClick={() => {
+                                        setCurrentDate(agenda.dateTime)
+                                        setSelectedType(agenda.type)
+                                        setIsAgendaModalOpen(true)
+                                    }} className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
                                     {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
                                 </div>
                             </div>
@@ -356,6 +365,14 @@ const Calendar: FC<CalendarType> = ({userList}) => {
         }
     }
 
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const date = moment(e.target.value)
+        if (date.isValid()) {
+            setSelectedDate(date)
+        }
+        router.push(`/calendar/${date.year()}/${date.month() + 1}`)
+    }
+
     return (
         <PublicLayout title='Calendar'>
             <div className="mx-10 mt-32 mb-10">
@@ -370,7 +387,13 @@ const Calendar: FC<CalendarType> = ({userList}) => {
                                 <FaAngleLeft />
                             </button>
                             <div className="border-x p-3">
-                                <FaRegCalendarAlt />
+                                {/* <FaRegCalendarAlt /> */}
+                                <div className="relative inline-block">
+                                    <input type="date" onChange={handleDateChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                                    <span className="relative text-gray-600 text-lg cursor-pointer">
+                                        <FaRegCalendarAlt />
+                                    </span>
+                                </div>
                             </div>
                             <button className="" onClick={() => handleMonthChange('next')}>
                                 <FaAngleRight />
@@ -431,4 +454,4 @@ const Calendar: FC<CalendarType> = ({userList}) => {
     )
 }
 
-export default Calendar
+export default Calendari

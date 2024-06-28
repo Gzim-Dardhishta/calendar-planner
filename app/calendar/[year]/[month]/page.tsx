@@ -1,4 +1,4 @@
-import { Calendar } from '@/components/Calendar'
+import { Calendari } from '@/components/Calendar'
 import { getAllUsers } from '@/utils/actions/users'
 import React, { FC, ReactNode } from 'react'
 
@@ -9,7 +9,7 @@ const CalendarPage:FC = async () => {
 
     return (
         <>
-            <Calendar userList={users} />
+            <Calendari userList={users} />
         </>
     )
 }

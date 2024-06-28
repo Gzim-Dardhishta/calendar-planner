@@ -54,7 +54,6 @@ export type ButtonType = {
 
 interface UserI {
     name: string;
-    firstName: string;
     lastName?: string;
     email: string;
     username: string

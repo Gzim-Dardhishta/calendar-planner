@@ -1,9 +1,9 @@
-import Calendar from './Calendar'
+import Calendari from './Calendar'
 import WeekView from './WeekView'
 import DayView from './DayView'
 
 export {
-    Calendar,
+    Calendari,
     WeekView,
     DayView
 }
