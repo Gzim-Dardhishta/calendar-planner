@@ -72,6 +72,22 @@ const Calendari: FC<CalendarType> = ({userList}) => {
 
     const [viewMode, setViewMode] = useState<string>('grid')
 
+    const [agenda, setAgenda] = useState<Agenda>()
+    const [editData, setEditData] = useState({
+        _id: agenda?._id!,
+        serviceDuration: agenda?.serviceDuration!,
+        text: agenda?.text!,
+        toWho: agenda?.toWho!,
+        typeOfService: agenda?.typeOfService!,
+        startTime: agenda?.startTime!,
+        endTime: agenda?.endTime!,
+        pauseTime: agenda?.endTime!,
+        copyService: agenda?.copyService!,
+        number: agenda?.number!,
+        lunch: agenda?.lunch!,
+        hotMeal: agenda?.hotMeal!
+    })
+
     useEffect(() => {
         const fetchAgendas = async () => {
             try {
@@ -114,6 +130,7 @@ const Calendari: FC<CalendarType> = ({userList}) => {
                                         setCurrentDate(agenda.dateTime)
                                         setSelectedType(agenda.type)
                                         setIsAgendaModalOpen(true)
+                                        setAgenda(agenda)
                                     }} className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
                                     {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
                                 </div>
@@ -448,7 +465,7 @@ const Calendari: FC<CalendarType> = ({userList}) => {
                         setIsAgendaModalOpen(true)
                     }}
                 />
-                <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} />
+                <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} agendaId={agenda?._id} />
             </div>
         </PublicLayout>
     )

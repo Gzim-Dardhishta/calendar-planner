@@ -1,8 +1,8 @@
 import React, { FC, useState, ChangeEvent, FormEvent, useEffect } from 'react'
 import axios from 'axios'
-import moment from 'moment' // Sigurohemi që moment është importuar këtu
+import moment from 'moment'
 import { ITypeOfService } from '../TypeOfServices/TypeOfServices'
-import { UserDTO } from '@/ts'
+import { EditAgendaType, UserDTO } from '@/ts'
 
 interface AddAgendaModalProps {
   isOpen: boolean;
@@ -10,6 +10,33 @@ interface AddAgendaModalProps {
   onAddAgenda: (newAgenda: any) => void;
   selectedType: {_id: string; name: string; color: string };
   selectedDate: string;
+  agendaId: string | undefined
+}
+
+interface Type {
+    _id: string;
+    name: string;
+    color: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
+interface Agenda {
+    _id: string;
+    dateTime: string;
+    typeOfService: string;
+    serviceDuration: string;
+    startTime: string;
+    endTime: string;
+    pauseTime: string;
+    text: string;
+    copyService: boolean;
+    number: number;
+    type: Type;
+    toWho: string;
+    lunch: boolean;
+    hotMeal: boolean;
+    createdAt: string;
 }
 
 
@@ -64,21 +91,23 @@ const generatePauseTimes = (): string[] => {
     return times
 }
 
-const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda, selectedType, selectedDate }) => {
+const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda, selectedType, selectedDate, agendaId }) => {
     
     const [error, setError] = useState<string | null>(null)
     const [typesOfServices, setTypesOfServices] = useState<ITypeOfService[]>([])
     const [users, setUsers] = useState<UserDTO[]>([])
     const [startTime, setStartTime] = useState<string>('06:00')
     const [endTime, setEndTime] = useState<string>('06:00')
+    const [agenda, setAgenda] = useState<Agenda>()
 
     const [duration, setDuration] = useState<string>('')
     const timeOptions = generateTimeOptions()
     const pauseTimes = generatePauseTimes()
 
     const [formData, setFormData] = useState({
+        _id: agendaId,
         dateTime: selectedDate,
-        serviceDuration: '',
+        serviceDuration: duration,
         text: '',
         type: selectedType._id,
         toWho: '',
@@ -93,7 +122,28 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
     })
 
     useEffect(() => {
-        setDuration(calculateDuration(startTime, endTime))
+        if (agenda) {
+            setFormData({
+                _id: agenda._id,
+                dateTime: agenda.dateTime,
+                serviceDuration: calculateDuration(agenda.startTime, agenda.endTime),
+                text: agenda.text,
+                type: agenda.type._id,
+                toWho: agenda.toWho,
+                typeOfService: agenda.typeOfService,
+                startTime: agenda.startTime,
+                endTime: agenda.endTime,
+                pauseTime: agenda.pauseTime,
+                copyService: agenda.copyService,
+                number: agenda.number,
+                lunch: agenda.lunch,
+                hotMeal: agenda.hotMeal
+            })
+        }
+    }, [agenda])
+
+    useEffect(() => {
+        setDuration(calculateDuration(agenda ? agenda.startTime : startTime, agenda ? agenda.endTime : endTime))
     }, [formData.startTime, formData.endTime])
 
     useEffect(() => {
@@ -102,6 +152,24 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
             dateTime: selectedDate
         })
     }, [selectedDate])
+
+    useEffect(() => {
+        const fetchAgendas = async () => {
+            if(agendaId !== undefined) {
+                try {
+                    const response = await axios.get(`/api/agendas/${agendaId}`)
+                    if (response.status === 200) {
+                        setAgenda(response.data.data)
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch agendas:', error)
+                }
+            } else{
+                console.log('no Agenda ID')
+            }
+        }
+        fetchAgendas()
+    }, [agendaId])
 
     useEffect(() => {
         const fetchTypesOfServices = async () => {
@@ -130,6 +198,11 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
         }
         fetchUsers()
     }, [])
+
+    const showUserById = (userId: string): string => {
+        const user = users.find((user) => user.id === userId) as UserDTO
+        return user.username
+    }
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target
@@ -160,16 +233,24 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         setError(null)
-        try {
-            const newAgenda = { ...formData, type: selectedType }
-            const response = await axios.post('/api/agendas', newAgenda)
-            if (response.status === 201) {
-                onAddAgenda({ ...response.data.data, type: selectedType })
+        if(agendaId) {
+            const editAgenda = { ...formData, type: selectedType }
+            const response = await axios.put('/api/agendas', editAgenda)
+            if (response.status === 200) {
                 onClose()
             }
-        } catch (error) {
-            setError('Failed to add agenda. Please try again.')
-            console.error('Failed to add agenda:', error)
+        } else {
+            try {
+                const newAgenda = { ...formData, type: selectedType }
+                const response = await axios.post('/api/agendas', newAgenda)
+                if (response.status === 201) {
+                    onAddAgenda({ ...response.data.data, type: selectedType })
+                    onClose()
+                }
+            } catch (error) {
+                setError('Failed to add agenda. Please try again.')
+                console.error('Failed to add agenda:', error)
+            }
         }
     }
 
@@ -194,9 +275,9 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                     <div>Add Service</div>
                     <div className='bg-gray-100 p-2 rounded flex flex-col gap-3'>
                         <div className='grid grid-cols-2'>
-                            <label htmlFor="" className='text-xs'>Type of Service</label>
-                            <select name="typeOfService" onChange={handleChange} className='p-1 rounded border' id="">
-                                <option value="">------</option>
+                            <label htmlFor="typeOfService" className='text-xs'>Type of Service</label>
+                            <select name="typeOfService" value={formData.typeOfService} onChange={handleChange} className='p-1 rounded border'>
+                                <option value="">{agenda ? agenda.typeOfService : '------'}</option>
                                 {filteredTypesOfServices.map((t, index) => (
                                     <option key={index} value={t.name}>{t.name}</option>
                                 ))}
@@ -204,12 +285,15 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                         </div>
                         <div className='grid grid-cols-2'>
                             <label className="block text-xs font-medium text-gray-700">Service duration</label>
-                            <div className='text-sm'>{calculateDuration(formData.startTime, formData.endTime)}</div>
+                            <div className='text-sm'>
+                                {calculateDuration(formData.startTime, formData.endTime)}
+                            </div>
                         </div>
                         <div className='grid grid-cols-2'>
                             <label htmlFor="startTime" className="block text-xs font-medium text-gray-700">Start Time</label>
                             <select
                                 name="startTime"
+                                value={formData.startTime}
                                 onChange={handleTimeChange}
                                 className="px-2 py-1 rounded text-sm border-gray-300 border"
                             >
@@ -224,6 +308,7 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                             <label htmlFor="endTime" className="block text-xs font-medium text-gray-700">End Time</label>
                             <select
                                 name="endTime"
+                                value={formData.endTime}
                                 onChange={handleTimeChange}
                                 className="px-2 py-1 rounded text-sm border-gray-300 border"
                             >
@@ -238,6 +323,7 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                             <label htmlFor="pauseTime" className="block text-xs font-medium text-gray-700">Pause Time</label>
                             <select
                                 name="pauseTime"
+                                value={formData.pauseTime}
                                 onChange={handleChange}
                                 className="px-2 py-1 rounded text-sm border-gray-300 border"
                             >
@@ -247,14 +333,15 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                             </select>
                         </div>
                         <div className="grid grid-cols-2">
-                            <label htmlFor="endTime" className="block text-xs font-medium text-gray-700">To Who</label>
+                            <label htmlFor="toWho" className="block text-xs font-medium text-gray-700">To Who</label>
                             <select
                                 name='toWho'
+                                value={formData.toWho}
                                 onChange={handleChange}
                                 className="px-2 py-1 rounded text-sm border-gray-300 border"
                             >
-                                <option disabled>--------</option>
-                                {users && users.map((u:any, index) => (
+                                <option value="" disabled>--------</option>
+                                {users.map((u:any, index) => (
                                     <option key={index} value={u.id} className="mb-1">{u.username}</option>
                                 ))}
                             </select>
@@ -277,7 +364,7 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                         </div>
                         <div className='flex'>
                             <label className="w-1/2 block text-xs font-medium text-gray-700">Number</label>
-                            <select name="number" onChange={handleChange} className=' p-1 px-2 rounded' id="">
+                            <select name="number" value={formData.number} onChange={handleChange} className=' p-1 px-2 rounded'>
                                 {Array(20).fill(null).map((n, index) => (
                                     <option key={index} value={index + 1}>{index + 1}</option>
                                 ))}
@@ -285,7 +372,7 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                         </div>
                     </div>
                     <button type="submit" className="w-full py-2 text-sm px-4 bg-gray-400 text-white rounded hover:opacity-90">
-                        Add Agenda
+                        {agendaId ? 'Update Agenda' : 'Add Agenda'}
                     </button>
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                 </form>

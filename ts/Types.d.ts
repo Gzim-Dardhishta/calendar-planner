@@ -135,3 +135,18 @@ interface Agenda {
     hotMeal: boolean;
     createdAt: string;
 }
+
+
+type EditAgendaType = {
+    _id: string
+    typeOfService: string
+    startTime: string,
+    endTime: string,
+    pauseTime: string
+    toWho: string
+    lunch: boolean
+    hotMeal: boolean
+    text: string
+    copyService: boolean
+    number: number
+}

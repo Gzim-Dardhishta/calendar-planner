@@ -2,13 +2,13 @@ import Agenda from '@/models/Agenda'
 import dbConnect from '@/utils/dbConnect'
 import { NextRequest, NextResponse } from 'next/server'
 
-export async function GET(req: NextRequest, { params }: { params: { agendaType: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { agendaTypeId: string } }) {
     try {
         await dbConnect()
 
-        const agendaTypeId = params.agendaType
+        const agendaTypeId = params.agendaTypeId
 
-        const agendas = await Agenda.find({agendaTypeId}).populate('type')
+        const agendas = await Agenda.findOne({ _id: agendaTypeId }).populate('type')
         return NextResponse.json({ success: true, data: agendas }, { status: 200 })
     } catch (error) {
         console.error('API Error:', (error as Error).message, error)

@@ -25,3 +25,15 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
     }
 }
+
+export async function PUT(req: NextRequest) {
+    try {
+        await dbConnect()
+        const data = await req.json()
+        const type = await Agenda.findByIdAndUpdate(data._id, data, { new: true })
+        return NextResponse.json({ success: true, data: type }, { status: 200 })
+    } catch (error) {
+        console.error('API Error:', (error as Error).message, error)
+        return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
+    }
+}
