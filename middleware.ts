@@ -22,11 +22,10 @@ export const config = {
     matcher: [
         '/',
         '/calendar/:path*',
-        '/satff',
+        '/staff',
         '/staff/:path*',
         '/api/users',
         '/login',
-        '/signup',
-        '/staff'
+        '/signup'
     ]
 }

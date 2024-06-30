@@ -11,7 +11,7 @@ import { HiDotsHorizontal } from 'react-icons/hi'
 import { IoMenu } from 'react-icons/io5'
 import { MdFileDownload } from 'react-icons/md'
 import PublicLayout from '../layouts/PublicLayout'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import AddAgendaModal from './AddAgendaModal'
 
@@ -41,6 +41,55 @@ interface Agenda {
     createdAt: string;
 }
 
+const displayHours = Array.from({ length: 24 }, (_, i) => i).concat(Array.from({ length: 18 }, (_, i) => i))
+const logicHours = Array.from({ length: 24 }, (_, i) => i)
+
+const AgendaBlock = ({ agenda, hour, selectedDate } : { agenda: Agenda, hour:number, selectedDate:Moment}) => {
+    const startHour = moment(agenda.startTime, 'HH:mm').hour()
+    const endHour = moment(agenda.endTime, 'HH:mm').hour()
+    const bgColor = agenda.type.color
+
+    const displayHour = hour < 24 ? hour : hour - 24
+
+    const isWithinRange = (displayHour >= startHour && displayHour < 24) || (displayHour < endHour && endHour < startHour)
+
+
+    if (hour < startHour || hour > endHour) {
+        return (
+            <div
+                className={'w-full p-2 text-xs whitespace-nowrap h-[12%] z-[99999] border-r text-white'}
+            >
+                <span>{hour}</span>
+                
+            </div>
+        )
+    }
+
+    const isStartHour = displayHour === startHour
+    const isEndHour = displayHour === endHour
+    const opacity = isStartHour ? 1 : 0.8
+    const borderOpacity = 0.7 
+
+    return (
+        <div
+            className={`w-full p-2 text-xs whitespace-nowrap h-[12%] z-[99999] ${isStartHour ? 'rounded-s' : ''} ${isEndHour ? 'rounded-e' : ''}`}
+            style={{
+                backgroundColor: bgColor,
+                opacity: opacity,
+                display: 'flex',
+                alignItems: 'center',
+                borderColor: `rgba(0, 0, 0, ${borderOpacity})`
+            }}
+        >
+            {isStartHour && (
+                <span>
+                    {moment(agenda.startTime, 'HH:mm').format('hh:mm A')} - {agenda.text}
+                </span>
+            )}
+        </div>
+    )
+}
+
 const DayView = () => {
 
     const router = useRouter()
@@ -59,6 +108,9 @@ const DayView = () => {
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
     const [currentDate, setCurrentDate] = useState<string>('')
+    const [agenda, setAgenda] = useState<Agenda>()
+
+    const [view, setView] = useState<string>('detail')
 
     useEffect(() => {
         const fetchAgendas = async () => {
@@ -92,17 +144,36 @@ const DayView = () => {
         setAgendas((prevAgendas) => [...prevAgendas, {...newAgenda, type: { ...newAgenda.type }}])
     }
 
-    const renderPlansForDay = (typeName:string, bgColor:string) => {
+    const renderPlansForDay = (typeName: string, bgColor:string) => {
         const filteredPlans = agendas.filter(
             (plan) => moment(plan.dateTime).isSame(selectedDate, 'day') && plan.type?.name === typeName
         )
+    
         return (
-            <div className='w-full'>
-                {filteredPlans.map((d, i) => (
-                    <div key={i} className={'w-full p-1 rounded mb-1 text-xs'} style={{backgroundColor: bgColor}}>
-                        {moment(d.dateTime).format('MMM DD, YYYY')} - {moment(d.dateTime).format('hh:mm A')} - {d.text}
+            <div>
+                {view === 'detail' ? (
+                    <div className='w-full'>
+                        {filteredPlans.map((d, i) => (
+                            <div key={i} className={'w-full p-1 rounded mb-1 text-xs'} style={{ backgroundColor: bgColor }}>
+                                {moment(d.dateTime).format('MMM DD, YYYY')} - {moment(d.dateTime).format('hh:mm A')} - {d.text}
+                            </div>
+                        ))}
                     </div>
-                ))}
+                ) : (
+                    <div className='flex'>
+                        {displayHours.map((hour, index) => (
+                            <div key={index} className='py-2 text-center w-8'>
+                                {/* <div className='mb-auto'>
+                                    {hour < 24 ? hour : hour - 24}
+                                </div> */}
+                                <div className='h-full  flex flex-col'>
+                                    {filteredPlans.map((agenda, i) => (
+                                        <AgendaBlock key={i} agenda={agenda} hour={hour} selectedDate={selectedDate} />
+                                    ))}</div> 
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         )
     }
@@ -143,9 +214,9 @@ const DayView = () => {
                         </div>
 
                         <div>
-                            <select className='border rounded-md p-[.45em] w-36'>
-                                <option value="">Staff view</option>
-                                <option value="">Grid view</option>
+                            <select onChange={(e) => setView(e.target.value)} className='border rounded-md p-[.45em] w-36'>
+                                <option value="detail">Detail view</option>
+                                <option value="time">Time Display</option>
                             </select>
                         </div>
 
@@ -161,25 +232,36 @@ const DayView = () => {
                         </div>
                     </div>
                 </div>
-                {types.map((type, index) => (
-                    <div key={index}>
-                        <div className={`text-xs p-1 text-white mb-1 font-medium flex justify-between group ${type.color}`} style={{backgroundColor: type.color}}>
-                            {type.name}
-                            <BsFillPlusCircleFill size={16} 
-                                onClick={() => {
-                                    setCurrentDate(date.toString())
-                                    setSelectedType(type)
-                                    setIsAgendaModalOpen(true)
-                                }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                <div>
+                    {view === 'time' && (
+                        <div className='flex divide-x'>
+                            {displayHours.map((hour, index) => (
+                                <div key={index} className='flex-1 border-b py-2 text-center'>
+                                    {hour}
+                                </div>
+                            ))}
                         </div>
-                        <div className='border-b-2 mb-1'>
-                            {renderPlansForDay(type.name, type.color)}
+                    )}
+                    {types.map((type, index) => (
+                        <div key={index}>
+                            <div className={`text-xs p-1 text-white mb-1 font-medium flex justify-between group ${type.color}`} style={{backgroundColor: type.color}}>
+                                {type.name}
+                                <BsFillPlusCircleFill size={16} 
+                                    onClick={() => {
+                                        setCurrentDate(date.toString())
+                                        setSelectedType(type)
+                                        setIsAgendaModalOpen(true)
+                                    }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                            </div>
+                            <div className='border-b-2 mb-1 h-full'>
+                                {renderPlansForDay(type.name, type.color)}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
-            <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} />
+            <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} agendaId={agenda?._id} />
         </PublicLayout>
     )
 }

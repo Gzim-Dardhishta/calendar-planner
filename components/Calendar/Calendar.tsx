@@ -60,8 +60,6 @@ const Calendari: FC<CalendarType> = ({userList}) => {
     const initialDate = moment(`${initialYear}-${initialMonth + 1}`, 'YYYY-MM')
     const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
 
-    const [date, setDate] = React.useState<Date | undefined>(new Date())
-
     const [agendas, setAgendas] = useState<Agenda[]>([])
     const [users, setUsers] = useState<UserDTO[] | undefined>(userList)
     const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
@@ -73,20 +71,6 @@ const Calendari: FC<CalendarType> = ({userList}) => {
     const [viewMode, setViewMode] = useState<string>('grid')
 
     const [agenda, setAgenda] = useState<Agenda>()
-    const [editData, setEditData] = useState({
-        _id: agenda?._id!,
-        serviceDuration: agenda?.serviceDuration!,
-        text: agenda?.text!,
-        toWho: agenda?.toWho!,
-        typeOfService: agenda?.typeOfService!,
-        startTime: agenda?.startTime!,
-        endTime: agenda?.endTime!,
-        pauseTime: agenda?.endTime!,
-        copyService: agenda?.copyService!,
-        number: agenda?.number!,
-        lunch: agenda?.lunch!,
-        hotMeal: agenda?.hotMeal!
-    })
 
     useEffect(() => {
         const fetchAgendas = async () => {
