@@ -37,3 +37,14 @@ export async function PUT(req: NextRequest) {
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
     }
 }
+
+export async function DELETE(req: NextRequest) {
+    try {
+        await dbConnect()
+        const type = await Agenda.deleteMany({})
+        return NextResponse.json({ success: true, message: 'Deleted all from Agendas' }, { status: 200 })
+    } catch (error) {
+        console.error('API Error:', (error as Error).message, error)
+        return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
+    }
+}

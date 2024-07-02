@@ -100,6 +100,8 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
     const [endTime, setEndTime] = useState<string>('06:00')
     const [agenda, setAgenda] = useState<Agenda>()
 
+    const [repeatOption, setRepeatOption] = useState<string>('')
+
     const [duration, setDuration] = useState<string>('')
     const timeOptions = generateTimeOptions()
     const pauseTimes = generatePauseTimes()
@@ -204,12 +206,14 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
         return user.username
     }
 
+    const handleRepeatChange = (e: ChangeEvent<HTMLSelectElement>) => {
+        setRepeatOption(e.target.value)
+    }
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target
         const isCheckbox = type === 'checkbox'
         const checked = isCheckbox ? (e.target as HTMLInputElement).checked : undefined
-
-        console.log(checked)
 
         setFormData(prevFormData => ({
             ...prevFormData,
@@ -230,26 +234,60 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
         })
     }
 
+    const generateDatesForMonth = (startDate: string) => {
+        const dates = []
+        let currentDate = moment(startDate)
+        const endOfMonth = currentDate.clone().endOf('month')
+
+        while (currentDate.isBefore(endOfMonth)) {
+            dates.push(currentDate.format('YYYY-MM-DD'))
+            currentDate = currentDate.add(1, 'day')
+        }
+
+        return dates
+    }
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         setError(null)
-        if(agendaId) {
-            const editAgenda = { ...formData, type: selectedType }
-            const response = await axios.put('/api/agendas', editAgenda)
-            if (response.status === 200) {
-                onClose()
-            }
-        } else {
+        
+        if(repeatOption === 'everyday') {
+            const dates = generateDatesForMonth(selectedDate)
+            const agendas = dates.map(date => ({
+                ...formData,
+                dateTime: date,
+                type: selectedType
+            }))
+
             try {
-                const newAgenda = { ...formData, type: selectedType }
-                const response = await axios.post('/api/agendas', newAgenda)
+                const response = await axios.post('/api/agendas/bulk', { agendas })
                 if (response.status === 201) {
-                    onAddAgenda({ ...response.data.data, type: selectedType })
+                    // onAddAgenda(response.data.data)
                     onClose()
                 }
             } catch (error) {
                 setError('Failed to add agenda. Please try again.')
                 console.error('Failed to add agenda:', error)
+            }
+        } else {
+            if(agendaId) {
+                const editAgenda = { ...formData, type: selectedType }
+                const response = await axios.put('/api/agendas', editAgenda)
+                if (response.status === 200) {
+                    onClose()
+                }
+            } else {
+                try {
+                    const newAgenda = { ...formData, type: selectedType }
+                    const response = await axios.post('/api/agendas', newAgenda)
+                    if (response.status === 201) {
+                        onAddAgenda({ ...response.data.data, type: selectedType })
+                        onClose()
+                    }
+                } catch (error) {
+                    setError('Failed to add agenda. Please try again.')
+                    console.error('Failed to add agenda:', error)
+                }
             }
         }
     }
@@ -361,6 +399,18 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                         <div className='flex'>
                             <label className="w-1/2 block text-xs font-medium text-gray-700">Copy service</label>
                             <input type="checkbox" name="copyService" checked={formData.copyService} onChange={handleChange} className=""/>
+                        </div>
+                        <div>
+                            <label className="w-1/2 block text-xs font-medium text-gray-700">To Repeat</label>
+                            <select name="repeatOption" value={repeatOption} onChange={handleRepeatChange}>
+                                <option value="">Select time interval</option>
+                                <option value="everyday">Every day</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="biweekly">Every 2 weeks</option>
+                                <option value="triweekly">Every 3 weeks</option>
+                                <option value="monthly">Every 4 weeks</option>
+                                <option value="specificDate">Specific date</option>
+                            </select>
                         </div>
                         <div className='flex'>
                             <label className="w-1/2 block text-xs font-medium text-gray-700">Number</label>

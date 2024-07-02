@@ -34,7 +34,6 @@ const AddStaff = async () => {
             comments: formData.get('comments') as string
         }
 
-        console.log(userData)
         await saveUser(userData)
     }
 
@@ -106,7 +105,7 @@ const AddStaff = async () => {
                         <Label htmlFor="name" className="text-right col-span-2">
                             Duty Days
                         </Label>
-                        <Input type="text" name='name' className="col-span-2" />
+                        <Input type="text" name='dutyDays' className="col-span-2" />
                     </div>
                 </div>
                 <div className="space-y-4">
@@ -156,13 +155,13 @@ const AddStaff = async () => {
                         <Label className="text-right col-span-2">
                             Has Sight Into
                         </Label>
-                        <Input type="text" name='name' className="col-span-2" />
+                        <Input type="text" name='hasSightInto' className="col-span-2" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label className="text-right col-span-2">
                             Comments
                         </Label>
-                        <Input type="text" name='name' className="col-span-2" />
+                        <Input type="text" name='comments' className="col-span-2" />
                     </div>
                 </div>
                 <div>

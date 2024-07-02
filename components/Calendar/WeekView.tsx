@@ -60,6 +60,9 @@ const WeekView: FC = (): ReactNode => {
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
     const [currentDate, setCurrentDate] = useState<string>('')
+
+    const [agenda, setAgenda] = useState<Agenda>()
+
     const router = useRouter()
 
 
@@ -124,7 +127,13 @@ const WeekView: FC = (): ReactNode => {
             filteredPlans.length > 0 && (
                 <div className='w-[95%] mx-auto'>
                     {filteredPlans.map((plan, index) => (
-                        <div key={index} className={' w-full p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis'} style={{backgroundColor: bgColor}}>
+                        <div
+                            onClick={() => {
+                                setCurrentDate(plan.dateTime)
+                                setSelectedType(plan.type)
+                                setIsAgendaModalOpen(true)
+                                setAgenda(agenda)
+                            }} key={index} className={' w-full p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis'} style={{backgroundColor: bgColor}}>
                             {moment(plan.dateTime).format('MMM DD, YYYY')} - {moment(plan.dateTime).format('hh:mm A')} - {plan.text}
                         </div>
                     ))}
@@ -222,7 +231,7 @@ const WeekView: FC = (): ReactNode => {
                     </div>
                 ))}
             </div>
-            <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} />
+            <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} agendaId={agenda?._id} />
         </PublicLayout>
     )
 }
