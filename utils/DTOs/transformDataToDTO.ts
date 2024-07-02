@@ -3,7 +3,7 @@ import { UserDTO } from '@/ts'
 export const usersToUsersDTO = (user:any) => {
     const userDTO: UserDTO = {
         id: user.id,
-        firstName: user.firstName,
+        firstName: user.name,
         lastName: user.lastName,
         email: user.email,
         username: user.username,
@@ -11,6 +11,7 @@ export const usersToUsersDTO = (user:any) => {
         martialStatus: user.martialStatus,
         contractType: user.contractType,
         contractDates: user.contractDates,
+        role: user.role,
         contractures: user.contractures,
         dutyDays: user.dutyDays,
         salary: user.salary,

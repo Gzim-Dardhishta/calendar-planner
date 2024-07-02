@@ -6,7 +6,6 @@ import { FaRegCalendarAlt, FaAngleLeft, FaAngleRight } from 'react-icons/fa'
 import { FiInfo } from 'react-icons/fi'
 import { BsFillPlusCircleFill, BsPinAngleFill } from 'react-icons/bs'
 import { Day } from '@/ts'
-import { sampleData } from '@/data'
 import Link from 'next/link'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
@@ -56,7 +55,6 @@ const WeekView: FC = (): ReactNode => {
     const [days, setDays] = useState<Day[]>([])
     const [agendas, setAgendas] = useState<Agenda[]>([])
     const [types, setTypes] = useState<{_id: string; name: string; color: string }[]>([])
-    const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
     const [currentDate, setCurrentDate] = useState<string>('')
@@ -119,7 +117,6 @@ const WeekView: FC = (): ReactNode => {
     }
 
     const renderPlansForDay = (fullDate: string, bgColor: string, type: string) => {
-        // const filteredPlans = agendas.filter((plan) => moment(plan.dateTime).isSame(fullDate, 'day'))
         const filteredPlans = agendas.filter(
             (plan) => moment(plan.dateTime).isSame(fullDate, 'day') && plan.type?.name === type
         )
@@ -132,9 +129,9 @@ const WeekView: FC = (): ReactNode => {
                                 setCurrentDate(plan.dateTime)
                                 setSelectedType(plan.type)
                                 setIsAgendaModalOpen(true)
-                                setAgenda(agenda)
+                                setAgenda(plan)
                             }} key={index} className={' w-full p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis'} style={{backgroundColor: bgColor}}>
-                            {moment(plan.dateTime).format('MMM DD, YYYY')} - {moment(plan.dateTime).format('hh:mm A')} - {plan.text}
+                            {moment(plan.dateTime).format('MMM DD, YYYY')} - {plan.startTime} - {plan.endTime}  {plan.text}
                         </div>
                     ))}
                 </div>
@@ -142,8 +139,11 @@ const WeekView: FC = (): ReactNode => {
         )
     }
 
-    const handlePreviousWeek = () => setWeek(prevWeek => Math.max(prevWeek - 1, 1))
-    const handleNextWeek = () => setWeek(week + 1)
+    const handleWeekChange = (direction: 'prev' | 'next') => {
+        const newDate = selectedDate.clone().add(direction === 'prev' ? -1 : 1, 'week')
+        setSelectedDate((prevDate) => prevDate.clone().add(direction === 'prev' ? -1 : 1, 'week'))
+        router.push(`/week/${newDate.year()}/${newDate.week()}`)
+    }
 
     const currentDayStyle = (d: Day, color: string) => moment(d.fullDate).isSame(moment(), 'day') ? color : ''
 
@@ -153,25 +153,29 @@ const WeekView: FC = (): ReactNode => {
                 <div className='flex items-center gap-6'>
                     <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
                     <div className='flex items-center gap-4'>
-                        {selectedDate.format('MMMM WW')}
+                        WEEK {selectedDate.format('WW YYYY')}
                     </div>
                     <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
-                        <button onClick={handlePreviousWeek}>
+                        <button onClick={() => handleWeekChange('prev')}>
                             <FaAngleLeft />
                         </button>
                         <div className='border-x p-3'>
                             <FaRegCalendarAlt />
                         </div>
-                        <button onClick={handleNextWeek}>
+                        <button onClick={() => handleWeekChange('next')}>
                             <FaAngleRight />
                         </button>
+                    </div>
+
+                    <div className="border px-5 py-2 rounded-lg cursor-pointer" onClick={() => router.push(`/week/${moment().year()}/${moment().week()}`)}>
+                            Today
                     </div>
                 </div>
 
                 <div className='flex items-center gap-4'>
                     <div className='flex items-center gap-4 border rounded-md w-fit px-4 text-xs font-medium text-gray-600'>
-                        <Link href='/day'>DAY</Link>
-                        <Link href='/week' className='border-x p-[.9em]'>WEEK</Link>
+                        <Link href={`/day/${moment().year()}/${moment().month() + 1}/${moment().date()}`}>DAY</Link>
+                        <Link href={`/week/${moment().year()}/${moment().month() + 1}/${moment().date()}`} className='border-x p-[.9em]'>WEEK</Link>
                         <Link href={`/calendar/${moment().year()}/${moment().month() + 1}`}>MONTH</Link>
                     </div>
 

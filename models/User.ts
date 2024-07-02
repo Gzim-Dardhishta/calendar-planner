@@ -28,9 +28,14 @@ const userSchema = new mongoose.Schema<UserI>({
         type: String
         // required: [true, 'Please provide a contact type']
     },
+    role: { type: String },
     contractDates: {
-        type: [Date]
-        // required: true
+        startDate: {
+            type: String
+        },
+        endDate: {
+            type: String
+        }
     },
     contractures: String,
     dutyDays: String,

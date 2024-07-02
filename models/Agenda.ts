@@ -11,6 +11,7 @@ export interface IAgenda extends Document {
   endTime: string
   pauseTime: string
   copyService?: boolean
+  copyServiceUUID?: string
   number?: number
   lunch?: boolean
   hotMeal?:boolean
@@ -26,6 +27,7 @@ const AgendaSchema: Schema = new Schema(
         pauseTime: { type: String },
         text: { type: String, required: true },
         copyService: { type: Boolean },
+        copyServiceUUID: {type: String},
         number: { type: Number },
         type: { type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: true },
         toWho: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

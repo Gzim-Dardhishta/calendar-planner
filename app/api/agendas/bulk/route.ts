@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
         const result = await Agenda.insertMany(agendas)
 
-        return NextResponse.json({ message: 'Agendas created successfully' }, { status: 201 })
+        return NextResponse.json({ message: 'Agendas created successfully', data: result }, { status: 201 })
     } catch (error) {
         console.error('API Error:', (error as Error).message, error)
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })

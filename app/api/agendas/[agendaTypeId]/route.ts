@@ -15,3 +15,18 @@ export async function GET(req: NextRequest, { params }: { params: { agendaTypeId
         return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
     }
 }
+
+export async function DELETE(req: NextRequest , { params }: { params: { agendaTypeId: string } }) {
+    try {
+        await dbConnect()
+
+        const agendaTypeId = params.agendaTypeId
+
+        await Agenda.findByIdAndDelete(agendaTypeId)
+        
+        return NextResponse.json({ success: true }, { status: 200 })
+    } catch (error) {
+        console.error('API Error:', (error as Error).message, error)
+        return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 })
+    }
+}

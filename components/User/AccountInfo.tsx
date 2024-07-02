@@ -6,7 +6,7 @@ import PublicLayout from '../layouts/PublicLayout'
 import { AccountInfoI } from '@/ts'
 
 const AccountInfo:FC<AccountInfoI> = ({ user }) => {
-    console.log(user)
+
     return (
         <PublicLayout title='User Profile'>
             <div className="border mt-8 rounded-lg p-8 w-3/4 mx-auto divide-y">
@@ -23,12 +23,12 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
                         <div className='mt-8'>
                             <div className="flex gap-4">
                                 <Input placeholder='' setValue={() => { console.log()}} type='text' value={user?.firstName + ' ' + user?.lastName} label='Full Name' input='input' />
-                                <Input placeholder='' setValue={() => {}} type='email' value='info@theguardianssecurity.nl' label='Email' input='input' />
-                                <Input placeholder='' setValue={() => {}} type='text' value='Contract Owner' label='Role' input='input' />
+                                <Input placeholder='' setValue={() => {}} type='email' value={user?.email as string} label='Email' input='input' />
+                                <Input placeholder='' setValue={() => {}} type='text' value={user?.role as string} label='Role' input='input' />
                             </div>
                             <div className="flex gap-4">
-                                <Input placeholder='' setValue={() => {}} type='text' value='Unknown' label='Sex' input='input' />
-                                <Input placeholder='' setValue={() => {}} type='text' value='Unknown' label='Marital status' input='input' />
+                                <Input placeholder='' setValue={() => {}} type='text' value={user?.sex as string} label='Sex' input='input' />
+                                <Input placeholder='' setValue={() => {}} type='text' value={user?.martialStatus as string} label='Marital status' input='input' />
                             </div>
                         </div>
                     </div>
@@ -41,20 +41,21 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
 
                     <div className='w-3/4'>
                         <div className="flex gap-4">
-                            <Input placeholder='' setValue={() => {}} type='text' value='Fixed hours contract' label='Contract type' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value='2024-03-05 until not determined' label='Contract dates' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.contractType as string} label='Contract type' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.contractDates.startDate as string + user?.contractDates.endDate as string} label='Contract dates' input='input' />
                         </div>
                         <div className="flex gap-4">
-                            <Input placeholder='' setValue={() => {}} type='text' value='do not give up' label='Contractures' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value='do not give up' label='Duty days' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.contractures as string} label='Contractures' input='input' />
+
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.dutyDays as string} label='Duty days' input='input' />
                         </div>
                         <div className="flex gap-4">
-                            <Input placeholder='' setValue={() => {}} type='text' value='do not give up' label='Salary' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value='do not give up' label='Conversion factor' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.salary as string} label='Salary' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.conversionFactor as string} label='Conversion factor' input='input' />
                         </div>
                         <div className="flex gap-4">
-                            <Input placeholder='' setValue={() => {}} type='text' value='The Guardians Security' label='Branch' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value='Unknown' label='Payroll tax credit' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.branch as string} label='Branch' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.payrollTaxCredit as string} label='Payroll tax credit' input='input' />
                         </div>
                     </div>
                 </div>
@@ -107,9 +108,9 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
 
                     <div className="3/4">
                         <div className="grid grid-cols-2 gap-2">
-                            <Input placeholder='' setValue={() => { console.log()}} type='text' value='E-mail' label='Services marketplace offers' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='email' value='No' label='Self-made changes' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value='E-mail' label='Changes in past shifts' input='input' />
+                            <Input placeholder='' setValue={() => { console.log()}} type='text' value={user?.serivceMarketplaceOffers as string} label='Services marketplace offers' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.selfMadeChanges as string} label='Self-made changes' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.changeInPastShifts as string} label='Changes in past shifts' input='input' />
                         </div>
                     </div>
                 </div>
@@ -121,8 +122,8 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
 
                     <div className="3/4">
                         <div className="grid grid-cols-2 gap-2">
-                            <Input placeholder='' setValue={() => { console.log()}} type='text' value='E-mail' label='Has insight into' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='email' value='No' label='Comments' input='input' />
+                            <Input placeholder='' setValue={() => { console.log()}} type='text' value={user?.hasSightInto as string} label='Has insight into' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.comments as string} label='Comments' input='input' />
                         </div>
                         <div className='underline'>Export your work schedule</div>
                         <div className='underline'>Change username and password</div>

@@ -61,7 +61,7 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                             <tr onClick={() => router.push(`/staff/${s.id}`)} key={index} className='divide-x hover:bg-gray-100 duration-200 ease-in-out cursor-pointer'>
                                 <td ><input className='' type="checkbox" name="" id="" /></td>
                                 <td className=''>{s.photo}</td>
-                                <td className='p-3 py-4'>{s.name}</td>
+                                <td className='p-3 py-4'>{s.firstName}</td>
                                 <td className='p-3 py-4'>{s.lastName}</td>
                                 <td className='p-3 py-4'>{s.email}</td>
                                 <td className='p-3 py-4'>{s.phone}</td>

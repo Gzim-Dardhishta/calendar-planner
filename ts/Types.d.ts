@@ -61,7 +61,11 @@ interface UserI {
     sex?: string;
     martialStatus?: string;
     contractType?: string;
-    contractDates?: Date[];
+    contractDates: {
+        startDate: string;
+        endDate: string; 
+    }
+    role: string
     contractures?: string;
     dutyDays?: string;
     salary?: string;
@@ -88,7 +92,11 @@ interface UserDTO {
     sex?: string;
     martialStatus?: string;
     contractType?: string;
-    contractDates?: Date[];
+    contractDates: {
+        startDate: string; // Changed to string
+        endDate: string; // Changed to string
+    }
+    role: string
     contractures?: string;
     dutyDays?: string;
     salary?: string;

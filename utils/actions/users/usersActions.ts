@@ -31,7 +31,7 @@ export const getUserById = async (id:string)  => {
     }
 }
 
-export const saveUser = async (userData:UserI) => {
+export const saveUser = async (userData: UserI) => {
     try {
         const {
             name,
@@ -40,6 +40,7 @@ export const saveUser = async (userData:UserI) => {
             password,
             username,
             sex,
+            role,
             martialStatus,
             contractType,
             contractDates,
@@ -65,7 +66,11 @@ export const saveUser = async (userData:UserI) => {
             sex,
             martialStatus,
             contractType,
-            contractDates,
+            contractDates: {
+                startDate: contractDates.startDate,
+                endDate: contractDates.endDate ? contractDates.endDate : 'Not determined'
+            },
+            role,
             contractures,
             dutyDays,
             salary,
@@ -81,8 +86,9 @@ export const saveUser = async (userData:UserI) => {
 
         await newUser.save()
 
+        return { message: 'User created successfully' }
     } catch (error) {
-        console.log(error)
-        return {message: 'error creating user'}
+        console.error('Error creating user:', error)
+        return { message: 'Error creating user' }
     }
 }
