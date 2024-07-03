@@ -3,7 +3,7 @@ import React from 'react'
 
 const page = () => {
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className=" bg-gray-50">
             <TypeOfServices />
         </div>
     )

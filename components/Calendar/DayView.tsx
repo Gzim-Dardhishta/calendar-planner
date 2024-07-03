@@ -1,6 +1,5 @@
 'use client'
 
-import { agendas, schedules, unproductive, available, unavailable } from '@/data'
 import { Plan, PlansData } from '@/ts'
 import moment, { Moment } from 'moment'
 import Link from 'next/link'
@@ -154,7 +153,12 @@ const DayView = () => {
                 {view === 'detail' ? (
                     <div className='w-full'>
                         {filteredPlans.map((d, i) => (
-                            <div key={i} className={'w-full p-1 rounded mb-1 text-xs'} style={{ backgroundColor: bgColor }}>
+                            <div onClick={() => {
+                                setCurrentDate(d.dateTime)
+                                setSelectedType(d.type)
+                                setIsAgendaModalOpen(true)
+                                setAgenda(d)
+                            }} key={i} className={'w-full p-1 rounded mb-1 text-xs'} style={{ backgroundColor: bgColor }}>
                                 {moment(d.dateTime).format('MMM DD, YYYY')} - {moment(d.dateTime).format('hh:mm A')} - {d.text}
                             </div>
                         ))}
@@ -163,9 +167,6 @@ const DayView = () => {
                     <div className='flex'>
                         {displayHours.map((hour, index) => (
                             <div key={index} className='py-2 text-center w-8'>
-                                {/* <div className='mb-auto'>
-                                    {hour < 24 ? hour : hour - 24}
-                                </div> */}
                                 <div className='h-full  flex flex-col'>
                                     {filteredPlans.map((agenda, i) => (
                                         <AgendaBlock key={i} agenda={agenda} hour={hour} selectedDate={selectedDate} />

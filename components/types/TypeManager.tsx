@@ -82,8 +82,8 @@ const TypeManager = () => {
         <PublicLayout title='Calendar'>
             <div className="container mx-auto p-24 px-16 flex">
                 <div className='w-96 flex flex-col gap-4'>
-                    <Link href='/ssp/branchlayers'>Branch Layer</Link>
-                    <Link href='/ssp/branchlayers/shifttypes'>Types of Services</Link>
+                    <Link href='/ssp/branchlayers' className='bg-gray-200 rounded p-2 w-fit'>Branch Layer</Link>
+                    <Link href='/ssp/branchlayers/shifttypes' className='hover:bg-gray-200 duration-200 ease-in-out rounded p-2 w-fit'>Types of Services</Link>
                 </div>
                 <div className='w-full'>
                     <h1 className="text-2xl font-bold mb-4">Manage Types</h1>

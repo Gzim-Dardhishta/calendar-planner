@@ -307,10 +307,10 @@ const Calendari: FC<CalendarType> = ({userList}) => {
                                     setIsTypeModalOpen(true)
                                 }}
                             />
-                            <div className="text-[11px] flex gap-[3px] ml-auto uppercase font-semibold group-hover:underline">
+                            <Link  href={`/day/${initialYear}/${selectedDate.month() + 1}/${day.format('D')}`} className="text-[11px] flex gap-[3px] ml-auto uppercase font-semibold group-hover:underline">
                                 <span>{day.format('ddd')}</span>
                                 {day.format('D')}
-                            </div>
+                            </Link>
                         </div>
                         <div className="text-xs text-[#5c1405]">{renderAgendasForDay(day.format('YYYY-MM-DD'))}</div>
                     </div>

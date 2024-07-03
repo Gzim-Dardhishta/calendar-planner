@@ -42,7 +42,7 @@ const AccountInfo:FC<AccountInfoI> = ({ user }) => {
                     <div className='w-3/4'>
                         <div className="flex gap-4">
                             <Input placeholder='' setValue={() => {}} type='text' value={user?.contractType as string} label='Contract type' input='input' />
-                            <Input placeholder='' setValue={() => {}} type='text' value={user?.contractDates.startDate as string + user?.contractDates.endDate as string} label='Contract dates' input='input' />
+                            <Input placeholder='' setValue={() => {}} type='text' value={user?.contractDates.startDate as string + '' + user?.contractDates.endDate as string} label='Contract dates' input='input' />
                         </div>
                         <div className="flex gap-4">
                             <Input placeholder='' setValue={() => {}} type='text' value={user?.contractures as string} label='Contractures' input='input' />

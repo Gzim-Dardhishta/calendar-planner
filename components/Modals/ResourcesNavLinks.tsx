@@ -28,10 +28,6 @@ const ResourcesNavLinks: FC = (): ReactNode => {
                     <div><BsFillPeopleFill size={60} /></div>
                     <div className={`${textStyle}`}>Staff</div>
                 </Link>
-                <Link href='/types' className={`border w-36 border-transparent p-8 rounded ${hoverBoxStyle}`}>
-                    <div><AiOutlineStock size={60} /></div>
-                    <div className={`${textStyle}`}>Typi per ngjyra</div>
-                </Link>
             </div>
         </>
     )

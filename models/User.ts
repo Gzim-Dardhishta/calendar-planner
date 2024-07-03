@@ -19,8 +19,7 @@ const userSchema = new mongoose.Schema<UserI>({
         unique: true
     },
     password: {
-        type: String,
-        required: [true, 'Please provide a password']
+        type: String
     },
     sex: String,
     martialStatus: String,

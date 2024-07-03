@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, ObjectId } from 'mongoose'
 export interface IAgenda extends Document {
   dateTime: Date;
   text: string;
+  title: string
   type: mongoose.Schema.Types.ObjectId;
   toWho?: mongoose.Schema.Types.ObjectId
   typeOfService: string
@@ -19,13 +20,14 @@ export interface IAgenda extends Document {
 
 const AgendaSchema: Schema = new Schema(
     {
-        dateTime: { type: Date, required: true },
-        typeOfService: { type: String, required: true},
-        serviceDuration: { type: String, required: true},
-        startTime: { type: String, required: true },
-        endTime: { type: String, required: true },
+        dateTime: { type: Date },
+        typeOfService: { type: String},
+        serviceDuration: { type: String},
+        title: String,
+        startTime: { type: String},
+        endTime: { type: String},
         pauseTime: { type: String },
-        text: { type: String, required: true },
+        text: { type: String},
         copyService: { type: Boolean },
         copyServiceUUID: {type: String},
         number: { type: Number },
