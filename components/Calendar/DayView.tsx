@@ -1,6 +1,6 @@
 'use client'
 
-import { Plan, PlansData } from '@/ts'
+import { Plan, PlansData, UserDTO } from '@/ts'
 import moment, { Moment } from 'moment'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -108,6 +108,7 @@ const DayView = () => {
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
     const [currentDate, setCurrentDate] = useState<string>('')
     const [agenda, setAgenda] = useState<Agenda>()
+    const [users, setUsers] = useState<UserDTO[]>()
 
     const [view, setView] = useState<string>('detail')
 
@@ -139,8 +140,28 @@ const DayView = () => {
         fetchTypes()
     }, [])
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/api/staff')
+                if (response.status === 200) {
+                    setUsers(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchUser()
+    }, [])
+
     const addNewAgenda = (newAgenda: Agenda) => {
         setAgendas((prevAgendas) => [...prevAgendas, {...newAgenda, type: { ...newAgenda.type }}])
+    }
+
+    const getUserForAgendas = (userId:string) => {
+        const user = users?.find(user => user.id === userId)
+
+        return user?.firstName
     }
 
     const renderPlansForDay = (typeName: string, bgColor:string) => {
@@ -159,7 +180,7 @@ const DayView = () => {
                                 setIsAgendaModalOpen(true)
                                 setAgenda(d)
                             }} key={i} className={'w-full p-1 rounded mb-1 text-xs'} style={{ backgroundColor: bgColor }}>
-                                {moment(d.dateTime).format('MMM DD, YYYY')} - {moment(d.dateTime).format('hh:mm A')} - {d.text}
+                                {d.startTime} - {d.endTime} - {d.type.name !== 'Agenda' ? getUserForAgendas(d.toWho) : ''} {d.text}
                             </div>
                         ))}
                     </div>
@@ -204,7 +225,7 @@ const DayView = () => {
                             <div className='border-x p-3'><FaRegCalendarAlt /></div>
                             <button className='' onClick={handleNextDay}><FaAngleRight /></button>
                         </div>
-                        <div className='border px-5 py-2 rounded-md'>Today</div>
+                        <div className='border px-5 py-2 rounded-md cursor-pointer' onClick={() => setSelectedDate(moment())}>Today</div>
                     </div>
 
                     <div className='flex items-center gap-4'>

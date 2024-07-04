@@ -1,12 +1,11 @@
 import PublicLayout from '../layouts/PublicLayout'
 import React, { FC, ReactNode } from 'react'
 import StaffTable from './StaffTable'
-import { StaffType } from '@/ts'
 
-const Staff:FC<StaffType> = ({ staffList }):ReactNode => {
+const Staff:FC = ():ReactNode => {
     return (
         <PublicLayout title='Staff'>
-            <StaffTable staffList={staffList} />
+            <StaffTable />
         </PublicLayout>
     )
 }

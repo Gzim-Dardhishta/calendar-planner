@@ -1,15 +1,32 @@
 'use client'
 
-import { StaffType } from '@/ts'
-import React, { FC, useState } from 'react'
+import { StaffType, UserDTO } from '@/ts'
+import React, { FC, useEffect, useState } from 'react'
 import { MdEmail } from 'react-icons/md'
 import { TfiPrinter } from 'react-icons/tfi'
 import { BsFillPeopleFill } from 'react-icons/bs'
 import { useRouter } from 'next/navigation'
+import axios from 'axios'
+import User from '@/models/User'
 
-const StaffTable:FC<StaffType> = ({staffList}) => {
+const StaffTable:FC = () => {
     const router = useRouter()
     const [openModal, setOpenModal] = useState(false)
+    const [users, setUsers] = useState<UserDTO[]>()
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/api/staff')
+                if (response.status === 200) {
+                    setUsers(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchUser()
+    }, [])
 
     return (
         <div>
@@ -56,7 +73,7 @@ const StaffTable:FC<StaffType> = ({staffList}) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {staffList!.length > 0 && staffList!.map((s, index) => (
+                        {users && users.map((s, index) => (
                             
                             <tr onClick={() => router.push(`/staff/${s.id}`)} key={index} className='divide-x hover:bg-gray-100 duration-200 ease-in-out cursor-pointer'>
                                 <td ><input className='' type="checkbox" name="" id="" /></td>

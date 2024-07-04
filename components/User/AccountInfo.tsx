@@ -1,12 +1,32 @@
 'use client'
 
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { Input } from '../views'
 import PublicLayout from '../layouts/PublicLayout'
-import { AccountInfoI } from '@/ts'
+import { AccountInfoI, UserDTO } from '@/ts'
 import Link from 'next/link'
+import axios from 'axios'
+import { useParams } from 'next/navigation'
 
-const AccountInfo:FC<AccountInfoI> = ({ user }) => {
+const AccountInfo:FC = () => {
+
+    const [user, setUser] = useState<UserDTO>()
+
+    const params = useParams<{ id: string }>()
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get(`/api/staff/${params.id}`)
+                if (response.status === 200) {
+                    setUser(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchUser()
+    }, [])
 
     return (
         <PublicLayout title='User Profile'>

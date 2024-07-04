@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema<UserI>({
     password: {
         type: String
     },
+    photo: { type: String },
     sex: String,
     martialStatus: String,
     contractType: {
@@ -28,6 +29,8 @@ const userSchema = new mongoose.Schema<UserI>({
         // required: [true, 'Please provide a contact type']
     },
     role: { type: String },
+    phone: { type: String },
+    function: { type: String},
     contractDates: {
         startDate: {
             type: String

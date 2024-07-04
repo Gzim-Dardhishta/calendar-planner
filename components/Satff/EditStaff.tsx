@@ -13,8 +13,6 @@ const EditStaff = () => {
     const params = useParams<{ id: string }>()
 
     const [user, setUser] = useState<UserDTO>()
-    console.log(user)
-
 
     useEffect(() => {
         const fetchUser = async () => {

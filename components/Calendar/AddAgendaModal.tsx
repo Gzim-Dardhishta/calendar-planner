@@ -173,7 +173,6 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                     if (response.status === 200) {
                         setAgenda(response.data.data)
                     }
-                    console.log(response.data.data)
                 } catch (error) {
                     console.error('Failed to fetch agendas:', error)
                 }
@@ -539,7 +538,7 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                                 >
                                     <option value="" disabled>--------</option>
                                     {users.map((u: any, index) => (
-                                        <option key={index} value={u.id} className="mb-1">{u.username}</option>
+                                        <option key={index} value={u.id} className="mb-1">{u.firstName}</option>
                                     ))}
                                 </select>
                             </div>

@@ -5,7 +5,7 @@ import { FC, ReactNode, useEffect, useState } from 'react'
 import { FaRegCalendarAlt, FaAngleLeft, FaAngleRight } from 'react-icons/fa'
 import { FiInfo } from 'react-icons/fi'
 import { BsFillPlusCircleFill, BsPinAngleFill } from 'react-icons/bs'
-import { Day } from '@/ts'
+import { Day, UserDTO } from '@/ts'
 import Link from 'next/link'
 import { HiDotsHorizontal } from 'react-icons/hi'
 import { MdFileDownload } from 'react-icons/md'
@@ -59,6 +59,8 @@ const WeekView: FC = (): ReactNode => {
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
     const [currentDate, setCurrentDate] = useState<string>('')
 
+    const [users, setUsers] = useState<UserDTO[]>()
+
     const [agenda, setAgenda] = useState<Agenda>()
 
     const router = useRouter()
@@ -92,6 +94,20 @@ const WeekView: FC = (): ReactNode => {
         fetchTypes()
     }, [])
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/api/staff')
+                if (response.status === 200) {
+                    setUsers(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchUser()
+    }, [])
+
     
 
     useEffect(() => {
@@ -116,6 +132,12 @@ const WeekView: FC = (): ReactNode => {
         })
     }
 
+    const getUserForAgendas = (userId:string) => {
+        const user = users?.find(user => user.id === userId)
+
+        return user?.firstName
+    }
+
     const renderPlansForDay = (fullDate: string, bgColor: string, type: string) => {
         const filteredPlans = agendas.filter(
             (plan) => moment(plan.dateTime).isSame(fullDate, 'day') && plan.type?.name === type
@@ -131,7 +153,7 @@ const WeekView: FC = (): ReactNode => {
                                 setIsAgendaModalOpen(true)
                                 setAgenda(plan)
                             }} key={index} className={' w-full p-1 mb-1 rounded whitespace-nowrap overflow-hidden text-ellipsis'} style={{backgroundColor: bgColor}}>
-                            {moment(plan.dateTime).format('MMM DD, YYYY')} - {plan.startTime} - {plan.endTime}  {plan.text}
+                            {plan.startTime} - {plan.endTime} - {plan.type.name !== 'Agenda' ? getUserForAgendas(plan.toWho) : ''} {plan.text}
                         </div>
                     ))}
                 </div>

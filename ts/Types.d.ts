@@ -66,6 +66,9 @@ interface UserI {
         endDate: string; 
     }
     role: string
+    phone?: string
+    function?: string
+    photo?: string
     contractures?: string;
     dutyDays?: string;
     salary?: string;
@@ -90,6 +93,7 @@ interface UserDTO {
     email: string;
     username: string;
     sex?: string;
+    photo: string
     martialStatus?: string;
     contractType?: string;
     contractDates: {
@@ -97,6 +101,8 @@ interface UserDTO {
         endDate: string; // Changed to string
     }
     role: string
+    phone: string
+    function: string
     contractures?: string;
     dutyDays?: string;
     salary?: string;

@@ -47,7 +47,7 @@ interface Agenda {
     createdAt: string;
 }
 
-const Calendari: FC<CalendarType> = ({userList}) => {
+const Calendari: FC = () => {
 
     const router = useRouter()
 
@@ -61,7 +61,8 @@ const Calendari: FC<CalendarType> = ({userList}) => {
     const [selectedDate, setSelectedDate] = useState<Moment>(initialDate.isValid() ? initialDate : moment())
 
     const [agendas, setAgendas] = useState<Agenda[]>([])
-    const [users, setUsers] = useState<UserDTO[] | undefined>(userList)
+    const [users, setUsers] = useState<UserDTO[]>()
+    const [user, setUser] = useState<UserDTO>()
     const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
@@ -71,6 +72,20 @@ const Calendari: FC<CalendarType> = ({userList}) => {
     const [viewMode, setViewMode] = useState<string>('grid')
 
     const [agenda, setAgenda] = useState<Agenda>()
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await axios.get('/api/staff')
+                if (response.status === 200) {
+                    setUsers(response.data.data)
+                }
+            } catch (error) {
+                console.error('Failed to fetch types:', error)
+            }
+        }
+        fetchUser()
+    }, [])
 
     useEffect(() => {
         const fetchAgendas = async () => {
@@ -100,6 +115,12 @@ const Calendari: FC<CalendarType> = ({userList}) => {
         fetchTypes()
     }, [])
 
+    const getUserForAgendas = (userId:string) => {
+        const user = users?.find(user => user.id === userId)
+
+        return user?.firstName
+    }
+
     const renderAgendasForDay = (date: string) => {
         const filteredAgendas = agendas.filter((agenda) => moment(agenda.dateTime).isSame(date, 'day'))
 
@@ -116,7 +137,7 @@ const Calendari: FC<CalendarType> = ({userList}) => {
                                         setIsAgendaModalOpen(true)
                                         setAgenda(agenda)
                                     }} className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
-                                    {moment(agenda.dateTime).format('MMM DD, YYYY')} - {moment(agenda.dateTime).format('hh:mm A')} - {agenda.text}
+                                    {agenda.startTime} - {agenda.endTime} - {agenda.type.name !== 'Agenda' ? getUserForAgendas(agenda.toWho) : ''} {agenda.text}
                                 </div>
                             </div>
                         ))}
@@ -158,7 +179,7 @@ const Calendari: FC<CalendarType> = ({userList}) => {
             <div className='flex flex-col gap-1'>
                 {staffAgendas.map((agenda, index) => (
                     <div key={index} className="p-1 rounded text-xs overflow-hidden  whitespace-nowrap" style={{ backgroundColor: agenda.type.color }}>
-                        {agenda.text}
+                        {agenda.startTime} - {agenda.endTime} - {agenda.type.name !== 'Agenda' ? getUserForAgendas(agenda.toWho) : ''} {agenda.text}
                     </div>
                 ))}
             </div>
