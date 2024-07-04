@@ -4,11 +4,15 @@ import React, { FC } from 'react'
 import { Input } from '../views'
 import PublicLayout from '../layouts/PublicLayout'
 import { AccountInfoI } from '@/ts'
+import Link from 'next/link'
 
 const AccountInfo:FC<AccountInfoI> = ({ user }) => {
 
     return (
         <PublicLayout title='User Profile'>
+            <div className='w-3/4 mx-auto my-10'>
+                <Link href={`/staff/edit/${user?.id}`} className='p-4 py-2 bg-gray-300 w-fit rounded float-right'>Edit</Link>
+            </div>
             <div className="border mt-8 rounded-lg p-8 w-3/4 mx-auto divide-y">
                 <div className="flex gap-10">
                     <div className="w-1/4">

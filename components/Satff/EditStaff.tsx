@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
-import { UserI } from '@/ts'
+import { UserDTO, UserI } from '@/ts'
 import { redirect, useParams } from 'next/navigation'
 import { Button } from '../ui/button'
 import axios from 'axios'
@@ -12,7 +12,8 @@ const EditStaff = () => {
 
     const params = useParams<{ id: string }>()
 
-    const [user, setUser] = useState<UserI>()
+    const [user, setUser] = useState<UserDTO>()
+    console.log(user)
 
 
     useEffect(() => {
@@ -83,7 +84,7 @@ const EditStaff = () => {
                         <Label htmlFor="name" className="text-right col-span-2">
                             Name
                         </Label>
-                        <Input type="text" value={user?.name} name='name' className="col-span-2" />
+                        <Input type="text" value={user?.firstName} name='name' className="col-span-2" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right col-span-2">
