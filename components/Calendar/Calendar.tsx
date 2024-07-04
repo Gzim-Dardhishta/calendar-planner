@@ -14,6 +14,7 @@ import SelectTypeModal from '@/components/Calendar/SelectTypeModal'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CalendarType, UserDTO } from '@/ts'
+import SideBarFilters from './SideBarFilters'
 
 moment.updateLocale('en', {
     week: {
@@ -62,7 +63,6 @@ const Calendari: FC = () => {
 
     const [agendas, setAgendas] = useState<Agenda[]>([])
     const [users, setUsers] = useState<UserDTO[]>()
-    const [user, setUser] = useState<UserDTO>()
     const [isTypeModalOpen, setIsTypeModalOpen] = useState(false)
     const [isAgendaModalOpen, setIsAgendaModalOpen] = useState(false)
     const [selectedType, setSelectedType] = useState<{_id: string; name: string; color: string }>({_id: '', name: '', color: '' })
@@ -72,6 +72,10 @@ const Calendari: FC = () => {
     const [viewMode, setViewMode] = useState<string>('grid')
 
     const [agenda, setAgenda] = useState<Agenda>()
+
+    const [hiddenTypes, setHiddenTypes] = useState<string[]>([])
+    const [openFilters, setOpenFilters] = useState(false)
+
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -129,17 +133,21 @@ const Calendari: FC = () => {
                 {filteredAgendas.length === 0 ? null : (
                     <div className={`${viewMode === 'grid' ? 'w-full mx-auto p-1' : 'flex flex-wrap gap-2'}`}>
                         {filteredAgendas.map((agenda, index) => (
-                            <div key={index} className={`p-1 mb-1 rounded whitespace-nowrap ${viewMode === 'grid' ? 'overflow-hidden text-ellipsis w-full' : 'w-fit'}`} style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
-                                <div
-                                    onClick={() => {
-                                        setCurrentDate(agenda.dateTime)
-                                        setSelectedType(agenda.type)
-                                        setIsAgendaModalOpen(true)
-                                        setAgenda(agenda)
-                                    }} className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
-                                    {agenda.startTime} - {agenda.endTime} - {agenda.type.name !== 'Agenda' ? getUserForAgendas(agenda.toWho) : ''} {agenda.text}
+                            hiddenTypes.includes(agenda.type.name) ? (
+                                null
+                            ) : (
+                                <div key={index} className={`p-1 mb-1 rounded whitespace-nowrap ${viewMode === 'grid' ? 'overflow-hidden text-ellipsis w-full' : 'w-fit'}`} style={{ backgroundColor: agenda.type?.color ?? '#F5AD9E', maxWidth: '100%' }}>
+                                    <div
+                                        onClick={() => {
+                                            setCurrentDate(agenda.dateTime)
+                                            setSelectedType(agenda.type)
+                                            setIsAgendaModalOpen(true)
+                                            setAgenda(agenda)
+                                        }} className={`${viewMode === 'grid' ? 'w-[12vw]' : 'w-fit'}`}>
+                                        {agenda.startTime} - {agenda.endTime} - {agenda.type.name !== 'Agenda' ? getUserForAgendas(agenda.toWho) : ''} {agenda.text}
+                                    </div>
                                 </div>
-                            </div>
+                            )
                         ))}
                     </div>
                 )}
@@ -397,11 +405,15 @@ const Calendari: FC = () => {
 
     return (
         <PublicLayout title='Calendar'>
+            <div className=''>
+                {openFilters ? <div onClick={() => setOpenFilters(false)} className='w-screen h-screen bg-slate-400 opacity-30 fixed top-0 left-0 z-40'></div>  : null}
+                {openFilters ? <SideBarFilters setHiddenFilters={setHiddenTypes} closeModal={setOpenFilters} /> : null}
+            </div>
             <div className="mx-10 mt-32 mb-10">
                 <div className="flex items-center justify-between w-full mb-10">
                     <div className="flex items-center gap-6">
-                        <div className="border rounded-md p-2 px-3 w-fit">
-                            <IoMenu size={'1.5em'} />
+                        <div className="border rounded-md p-2 px-3 w-fit cursor-pointer" >
+                            <IoMenu size={'1.5em'} onClick={() => setOpenFilters(true)} />
                         </div>
                         <span className="w-36">{selectedDate.format('MMMM YYYY')}</span>
                         <div className="flex items-center gap-4 border rounded-md w-fit px-4">

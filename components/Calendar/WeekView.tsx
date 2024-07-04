@@ -14,6 +14,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { IoMenu } from 'react-icons/io5'
 import axios from 'axios'
 import AddAgendaModal from './AddAgendaModal'
+import SideBarFilters from './SideBarFilters'
 
 interface Type {
     _id: string;
@@ -64,6 +65,9 @@ const WeekView: FC = (): ReactNode => {
     const [agenda, setAgenda] = useState<Agenda>()
 
     const router = useRouter()
+
+    const [hiddenTypes, setHiddenTypes] = useState<string[]>([])
+    const [openFilters, setOpenFilters] = useState(false)
 
 
     useEffect(() => {
@@ -171,9 +175,13 @@ const WeekView: FC = (): ReactNode => {
 
     return (
         <PublicLayout title='Week'>
+            <div className=''>
+                {openFilters ? <div onClick={() => setOpenFilters(false)} className='w-screen h-screen bg-slate-400 opacity-30 fixed top-0 left-0 z-40'></div>  : null}
+                {openFilters ? <SideBarFilters setHiddenFilters={setHiddenTypes} closeModal={setOpenFilters} /> : null}
+            </div>
             <div className='flex items-center justify-between mb-10 mx-24 mt-10'>
                 <div className='flex items-center gap-6'>
-                    <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
+                    <div className='border rounded-md p-2 px-3 w-fit cursor-pointer' onClick={() => setOpenFilters(true)}><IoMenu size={'1.5em'} /></div>
                     <div className='flex items-center gap-4'>
                         WEEK {selectedDate.format('WW YYYY')}
                     </div>
@@ -230,31 +238,35 @@ const WeekView: FC = (): ReactNode => {
                     ))}
                 </div>
                 {types.map((label, labelIndex) => (
-                    <div key={labelIndex}>
-                        <div className='my-1 grid grid-cols-7'>
-                            {days.map((d, index) => (
-                                <div
-                                    key={index}
-                                    className={`p-1 text-xs text-left text-black w-full flex justify-between items-center group hover:cursor-pointer ${currentDayStyle(d, label.color)}`} style={{backgroundColor: label.color}}
-                                >
-                                    {index === 0 ? label.name : ''}
-                                    <BsFillPlusCircleFill size={16} 
-                                        onClick={() => {
-                                            setCurrentDate(d.fullDate)
-                                            setSelectedType(label)
-                                            setIsAgendaModalOpen(true)
-                                        }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
-                                </div>
-                            ))}
+                    hiddenTypes.includes(label.name) ? (
+                        null
+                    ) : (
+                        <div key={labelIndex}>
+                            <div className='my-1 grid grid-cols-7'>
+                                {days.map((d, index) => (
+                                    <div
+                                        key={index}
+                                        className={`p-1 text-xs text-left text-black w-full flex justify-between items-center group hover:cursor-pointer ${currentDayStyle(d, label.color)}`} style={{backgroundColor: label.color}}
+                                    >
+                                        {index === 0 ? label.name : ''}
+                                        <BsFillPlusCircleFill size={16} 
+                                            onClick={() => {
+                                                setCurrentDate(d.fullDate)
+                                                setSelectedType(label)
+                                                setIsAgendaModalOpen(true)
+                                            }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className='grid grid-cols-7 divide-x border-b'>
+                                {days.map((d, index) => (
+                                    <div key={index} className={`font-medium text-xs py-1 overflow-hidden whitespace-nowrap ${currentDayStyle(d, 'bg-[#00000012]')}`}>
+                                        {renderPlansForDay(d.fullDate, label.color, label.name)}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className='grid grid-cols-7 divide-x border-b'>
-                            {days.map((d, index) => (
-                                <div key={index} className={`font-medium text-xs py-1 overflow-hidden whitespace-nowrap ${currentDayStyle(d, 'bg-[#00000012]')}`}>
-                                    {renderPlansForDay(d.fullDate, label.color, label.name)}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                    )
                 ))}
             </div>
             <AddAgendaModal isOpen={isAgendaModalOpen} onClose={() => setIsAgendaModalOpen(false)} onAddAgenda={addNewAgenda} selectedType={selectedType} selectedDate={currentDate} agendaId={agenda?._id} />

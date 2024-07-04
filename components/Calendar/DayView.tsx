@@ -13,6 +13,7 @@ import PublicLayout from '../layouts/PublicLayout'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import AddAgendaModal from './AddAgendaModal'
+import SideBarFilters from './SideBarFilters'
 
 interface Type {
     _id: string;
@@ -111,6 +112,8 @@ const DayView = () => {
     const [users, setUsers] = useState<UserDTO[]>()
 
     const [view, setView] = useState<string>('detail')
+    const [hiddenTypes, setHiddenTypes] = useState<string[]>([])
+    const [openFilters, setOpenFilters] = useState(false)
 
     useEffect(() => {
         const fetchAgendas = async () => {
@@ -215,10 +218,14 @@ const DayView = () => {
 
     return (
         <PublicLayout title='Day View'>
+            <div className=''>
+                {openFilters ? <div onClick={() => setOpenFilters(false)} className='w-screen h-screen bg-slate-400 opacity-30 fixed top-0 left-0 z-40'></div>  : null}
+                {openFilters ? <SideBarFilters setHiddenFilters={setHiddenTypes} closeModal={setOpenFilters} /> : null}
+            </div>
             <div className='w-[80%] mx-auto mt-16'>
                 <div className='flex items-center justify-between w-full mb-10'>
                     <div className='flex items-center gap-6'>
-                        <div className='border rounded-md p-2 px-3 w-fit'><IoMenu size={'1.5em'} /></div>
+                        <div className='border rounded-md p-2 px-3 w-fit cursor-pointer' onClick={() => setOpenFilters(true)}><IoMenu size={'1.5em'} /></div>
                         <span>{selectedDate.format('ddd DD MMMM')}</span>
                         <div className='flex items-center gap-4 border rounded-md w-fit px-4'>
                             <button className='' onClick={handlePreviousDay}><FaAngleLeft /></button>
@@ -265,20 +272,24 @@ const DayView = () => {
                         </div>
                     )}
                     {types.map((type, index) => (
-                        <div key={index}>
-                            <div className={`text-xs p-1 text-white mb-1 font-medium flex justify-between group ${type.color}`} style={{backgroundColor: type.color}}>
-                                {type.name}
-                                <BsFillPlusCircleFill size={16} 
-                                    onClick={() => {
-                                        setCurrentDate(date.toString())
-                                        setSelectedType(type)
-                                        setIsAgendaModalOpen(true)
-                                    }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                        hiddenTypes.includes(type.name) ? (
+                            null
+                        ) : (
+                            <div key={index}>
+                                <div className={`text-xs p-1 text-white mb-1 font-medium flex justify-between group ${type.color}`} style={{backgroundColor: type.color}}>
+                                    {type.name}
+                                    <BsFillPlusCircleFill size={16} 
+                                        onClick={() => {
+                                            setCurrentDate(date.toString())
+                                            setSelectedType(type)
+                                            setIsAgendaModalOpen(true)
+                                        }} className='shadow-lg rounded-full cursor-pointer shadow-custom hidden ml-auto group-hover:block' />
+                                </div>
+                                <div className='border-b-2 mb-1 h-full'>
+                                    {renderPlansForDay(type.name, type.color)}
+                                </div>
                             </div>
-                            <div className='border-b-2 mb-1 h-full'>
-                                {renderPlansForDay(type.name, type.color)}
-                            </div>
-                        </div>
+                        )
                     ))}
                 </div>
             </div>

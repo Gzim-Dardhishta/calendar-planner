@@ -23,7 +23,7 @@ const AgendaSchema: Schema = new Schema(
         dateTime: { type: Date },
         typeOfService: { type: String},
         serviceDuration: { type: String},
-        title: String,
+        title: { type: String},
         startTime: { type: String},
         endTime: { type: String},
         pauseTime: { type: String },
@@ -32,7 +32,7 @@ const AgendaSchema: Schema = new Schema(
         copyServiceUUID: {type: String},
         number: { type: Number },
         type: { type: mongoose.Schema.Types.ObjectId, ref: 'Type', required: true },
-        toWho: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        toWho: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
         lunch: { type: Boolean },
         hotMeal: { type: Boolean }
     },

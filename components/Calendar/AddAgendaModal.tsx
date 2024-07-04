@@ -292,6 +292,12 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
         return dates
     }
 
+    const filterFormData = (data: any) => {
+        return Object.fromEntries(
+            Object.entries(data).filter(([key, value]) => value !== '' && value !== undefined && value !== null)
+        )
+    }
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
         setError(null)
@@ -326,8 +332,8 @@ const AddAgendaModal: FC<AddAgendaModalProps> = ({ isOpen, onClose, onAddAgenda,
                 }
             } else {
                 try {
-                    const newAgenda = { ...formData, type: selectedType }
-                    const response = await axios.post('/api/agendas', newAgenda)
+                    const filteredData = filterFormData({ ...formData, type: selectedType })
+                    const response = await axios.post('/api/agendas', filteredData)
                     if (response.status === 201) {
                         onAddAgenda({ ...response.data.data, type: selectedType })
                         onClose()
